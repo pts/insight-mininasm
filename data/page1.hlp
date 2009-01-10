@@ -1,0 +1,25 @@
+<ีออออออออออออออออออออออออออ>( Insight 1.23 help page 1 )<ออออออออออออออออออออออออออธ>
+<ณ>[Code Window:         Code Window:          Func. keys:          Dump...]       <ณ>
+<ณ>{@X} - exit            {^\0}/{^\1} - -/+ 1 byte    {F1} - help            [\(in Code/Dump\)]<ณ>
+<ณ>{@}/{F10} - menu         {^A} - rest. all regs,  {F2} - set/clear BPT   {@C} - CS:IP    <ณ>
+<ณ>{@\[0-9\]} - code mark        but CS:IP, FL    {F3} - load program    {@D} - DS:SI    <ณ>
+<ณ>{@$\[0-9\]} - dump mark  {^C} - restore CS:IP    {F4} - go to cursor    {@E} - ES:DI    <ณ>
+<ณ>{\[0-9\]} - go to mark   {^T} - restore flags    {F5} - refresh screen  {@S} - SS:BP    <ณ>
+<ณ>{$\[0-9\]} - clear mark  {^R} - 16/32-bit regs   {F6} - skip instruct.  {@A} - DX:AX    <ณ>
+<ณ>{$A} - assembler                             {F7} - trace into      {@B} - ES:BX    <ณ>
+<ณ>{$D} - dump window     [Dump Window:]          {F8} - step over       {@F} - DS:DX    <ณ>
+<ณ>{$F} - flags window    {^F} - follow menu      {F10} - menu           {@I} - ES:SI    <ณ>
+<ณ>{$R} - regs window     {^B} - block menu       {^F2} - pgm reset      {@J} - DS:DI    <ณ>
+<ณ>{$S} - stack window    {^D} - dump addr        {^F9} - run            {@U} - user scr <ณ>
+<ณ>{^F}/{Enter} - follow    {^S} - search           {@F2} - BPT activity   {@L} - code     <ณ>
+<ณ>{^P}/{Backspace} - prev  {^L} - search again     {@F5} - user screen    {@=} - reference<ณ>
+<ณ>{^O}/{^Enter} - CS:IP    {@Z} - zoom                                                <ณ>
+<ณ>{^D} - dump addr       {^\0}/{^\1} - -/+ 1 byte    [Registers Window:]                  <ณ>
+<ณ>{^G} - disasm addr                           {^D} - dec reg    {^C} - restore CS:IP <ณ>
+<ณ>{^N} - new CS:IP       [Flags Window:]         {^I} - inc reg    {^T} - restore flags <ณ>
+<ณ>{^W} - data watch      {1}/{\2} - set flag        {^Z} - zero reg   {^R} - 16/32-bit regs<ณ>
+<ณ>{^B} - block menu      {0}/{\3} - clear flag      {^O} - restore reg                   <ณ>
+<ณ>{^S} - search          {Space} - toggle flag   {^A} - rest. all regs, but CS:IP, FL <ณ>
+<ณ>{^L} - search again    {^T} - restore flags                                       <ณ>
+<ณ>{^M} - list mem. blocks    (@) - Alt, (^) - Ctrl, ($) - Shift   (\(F1 to view 2nd page\)) <ณ>
+<ิออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออพ>
