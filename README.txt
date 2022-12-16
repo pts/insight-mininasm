@@ -120,6 +120,8 @@ directory to the main repository directory.
 
 The macro SCR_WIDTH was moved from the command line to insight.asm.
 
+The macro COL_SCH was moved from the command line to insight.asm.
+
 Step 4. Change the source code so that it builds with mininasm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The goal is to build the insight.com identical to the release.

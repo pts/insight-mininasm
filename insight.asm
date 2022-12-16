@@ -33,7 +33,7 @@
 ; Constants.
 ;=============================================================================
 %include	"insight.inc"		;Constants
-%include	"COL_SCH"		;Color scheme
+%include	"colors_k.inc"		;Color scheme
 %include	"colors.inc"		;Color scheme
 ;=============================================================================
 
