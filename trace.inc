@@ -47,9 +47,9 @@
 
 %macro		save_user_regs		0
 		cmp	byte [cs:system_cpu],3
-		jb	@@skip_esp
+		jb	.skip_esp
 		db	66h
-@@skip_esp:
+.skip_esp:
 		mov	[cs:cpu_regs+REG_SP],sp
 		call	_save_user_regs
 %endmacro
@@ -99,12 +99,12 @@ prefix_07:
 		mov	[cpu_regs+REG_BP],bp
 
 		cmp	byte [system_cpu],3
-		jb	@@skip
+		jb	.skip
 	cpu	386
 		mov	[cpu_regs+REG_GS],gs
 		mov	[cpu_regs+REG_FS],fs
 	cpu	8086
-@@skip:
+.skip:
 		mov	[cpu_regs+REG_ES],es
 		mov	[cpu_regs+REG_SS],ss
 		mov	es,ax
@@ -168,12 +168,12 @@ prefix_15:
 		nop
 		mov	bp,[cpu_regs+REG_BP]
 		cmp	byte [system_cpu],3
-		jb	@@skip
+		jb	.skip
 	cpu	386
 		mov	gs,[cpu_regs+REG_GS]
 		mov	fs,[cpu_regs+REG_FS]
 	cpu	8086
-@@skip:
+.skip:
 		mov	es,[cpu_regs+REG_ES]
 		mov	ss,[cpu_regs+REG_SS]
 		mov	ds,[cpu_regs+REG_DS]
@@ -224,17 +224,17 @@ skip_instruction:
 single_step:
 		mov	dl,0
 		call	emulate
-		jnc	@@1
+		jnc	.1
 		call	save_regs
 		jmp	trace_update
-@@1:		call	check_swap
+.1:		call	check_swap
 		cmp	byte [swap_flag],0
-		je	@@n1
+		je	.n1
 		call	restore_screen
-@@n1:
+.n1:
 		cli
 ;		call	set_09_vector
-		mov	dx,@@int_01_entry
+		mov	dx,.int_01_entry
 		call	set_01_vector
 		mov	al,[user_port_21]
 		or	al,3
@@ -246,7 +246,7 @@ single_step:
 		push	word [cs:cpu_regs+REG_CS]
 		push	word [cs:cpu_regs+REG_IP]
 		iret
-@@int_01_entry:
+.int_01_entry:
 		pop	word [cs:cpu_regs+REG_IP]
 		pop	word [cs:cpu_regs+REG_CS]
 		pop	word [cs:cpu_regs+REG_FL]
@@ -269,69 +269,69 @@ single_step:
 trace_update:
 		call	update_screen
 		cmp	word [cur_ip_line],-1
-		jne	@@2
+		jne	.2
 		jmp	go_to_origin
-@@2:
+.2:
 		mov	ax,[cur_ip_line]
 		cmp	ax,CPU_HEIGHT-4
-		ja	@@adjust
-@@ok:
+		ja	.adjust
+.ok:
 		mov	[cur_line],ax
 		jmp	update_commands
-@@adjust:
+.adjust:
 		mov	si,[cur_ip]
 		sub	ax,6
 		mov	cx,ax
-@@next:
+.next:
 		call	unassemble
-		loop	@@next
+		loop	.next
 		mov	[cur_ip],si
 		mov	ax,6
-		jmp	@@ok
+		jmp	.ok
 ;=============================================================================
 ; proc_trace
 ;-----------------------------------------------------------------------------
 proc_trace:
 		call	check_jump
-		jnc	@@3
+		jnc	.3
 		jmp	single_step
-@@3:
+.3:
 		xor	bp,bp
 		mov	ax,[cpu_regs+REG_CS]
 		mov	[unasm_seg],ax
 		mov	si,[cpu_regs+REG_IP]
 		call	check_break
-		jc	@@a
+		jc	.a
 		mov	bp,bx
-@@a:
+.a:
 		cli
 		mov	es,ax
 		call	unassemble
 		call	check_break
-		jnc	@@ok
+		jnc	.ok
 		mov	bx,bp0
 		call	set_breakpoint
-		jnc	@@ok
+		jnc	.ok
 		mov	si,code_not_in_ram
 		call	error_message
 		call	clear_breakpoint
 		jmp	trace_update
-@@ok:
+.ok:
 		mov	dl,1
 		call	check_swap
 		cmp	byte [swap_flag],0
-		je	@@1
+		je	.1
 		call	restore_screen
-@@1:
+.1:
 		call	set_09_vector
-		mov	dx,@@int_03_entry
+		mov	dx,.int_03_entry
 		call	set_03_vector
 		call	set_breakpoints
 		or	bp,bp
-		jz	@@b
+		jz	.b
 		mov	bx,bp
 		call	clear_breakpoint
-@@b:
+.b:
 		mov	al,[user_port_21]
 		and	al,11111110b
 		out	21h,al
@@ -342,7 +342,7 @@ proc_trace:
 		push	word [cs:cpu_regs+REG_IP]
 		iret
 
-@@int_03_entry:
+.int_03_entry:
 		pop	word [cs:cpu_regs+REG_IP]
 		pop	word [cs:cpu_regs+REG_CS]
 		pop	word [cs:cpu_regs+REG_FL]
@@ -357,12 +357,12 @@ proc_trace:
 		mov	al,[my_port_21]
 		out	21h,al
 		sti
-@@skip:
+.skip:
 		cmp	byte [user_screen_mode],0
-		je	@@2
+		je	.2
 		call	save_screen
 		call	draw_cpu_window
-@@2:
+.2:
 		jmp	trace_update
 ;=============================================================================
 ; animate
@@ -373,23 +373,23 @@ animate:
 		call	init_dialog
 
 		mov	byte [anim_dlg_item],0
-@@again:
+.again:
 		call	exec_dialog_
-		jz	@@exit
+		jz	.exit
 
 		call	get_delay
 		mov	byte [anim_dlg_item],0
-		jc	@@again
+		jc	.again
 
 		call	draw_screen
 
 		cmp	word [delay_value],0
-		jne	@@ok
+		jne	.ok
 		inc	word [delay_value]
-@@ok:
+.ok:
 
 		call	display_focus
-@@loop:
+.loop:
 		call	single_step
 		push	ds
 		xor	ax,ax
@@ -399,27 +399,27 @@ animate:
 		pop	ds
 		add	bx,[delay_value]
 		adc	cx,0
-@@wait:
+.wait:
 		mov	ah,1
 		int	16h
-		jnz	@@quit
+		jnz	.quit
 		push	ds
 		xor	ax,ax
 		mov	ds,ax
 		cmp	[46eh],cx
-		ja	@@end
+		ja	.end
 		cmp	[46ch],bx
-		jae	@@end
+		jae	.end
 		pop	ds
-		jmp	@@wait
-@@end:
+		jmp	.wait
+.end:
 		pop	ds
-		jmp	@@loop
-@@quit:
+		jmp	.loop
+.quit:
 		mov	ah,0
 		int	16h
 		call	hide_focus
-@@exit:
+.exit:
 		call	draw_screen
 		call	popr
 		ret
@@ -437,12 +437,12 @@ set_01_vector:
 ;-----------------------------------------------------------------------------
 restore_01_vector:
 		cmp	byte [int_01_set],0
-		je	@@quit
+		je	.quit
 		mov	si,save_int_01
 		mov	di,1*4
 		call	restore_vector
 		mov	byte [int_01_set],0
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; set_03_vector
@@ -458,12 +458,12 @@ set_03_vector:
 ;-----------------------------------------------------------------------------
 restore_03_vector:
 		cmp	byte [int_03_set],0
-		je	@@quit
+		je	.quit
 		mov	si,save_int_03
 		mov	di,3*4
 		call	restore_vector
 		mov	byte [int_03_set],0
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; set_09_vector
@@ -480,12 +480,12 @@ set_09_vector:
 ;-----------------------------------------------------------------------------
 restore_09_vector:
 		cmp	byte [int_09_set],0
-		je	@@quit
+		je	.quit
 		mov	si,save_int_09
 		mov	di,9*4
 		call	restore_vector
 		mov	byte [int_09_set],0
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; run_program
@@ -495,13 +495,13 @@ run_program:
 		mov	[unasm_seg],ax
 		mov	si,[cpu_regs+REG_IP]
 		call	check_break
-		jc	@@a
+		jc	.a
 		call	single_step
-@@a:
+.a:
 		cmp	byte [swap_mode],0
-		je	@@n
+		je	.n
 		call	restore_screen
-@@n:
+.n:
 		cli
 ;		call	RestoreUserInts
 		call	set_breakpoints
@@ -527,36 +527,36 @@ go_to_cursor:
 		mov	ax,[cur_line_ip]
 		mov	[bx+BP_OFFS],ax
 		call	test_break
-		jnc	@@ok
+		jnc	.ok
 		mov	si,code_not_in_ram
 		jmp	error_message
-@@ok:
+.ok:
 		push	word [unasm_seg]
 		push	word [cur_line_ip]
 		mov	ax,[cpu_regs+REG_CS]
 		cmp	ax,[unasm_seg]
-		jne	@@a
+		jne	.a
 		mov	ax,[cur_line_ip]
 		cmp	ax,[cpu_regs+REG_IP]
-		jne	@@a
+		jne	.a
 		call	single_step
-		jmp	@@b
-@@a:
+		jmp	.b
+.a:
 		mov	ax,[cpu_regs+REG_CS]
 		mov	[unasm_seg],ax
 		mov	si,[cpu_regs+REG_IP]
 		call	check_break
-		jc	@@b
+		jc	.b
 		call	single_step
-@@b:
+.b:
 		cmp	byte [swap_mode],0
-		je	@@n1
+		je	.n1
 		call	restore_screen
-@@n1:
+.n1:
 		cli
 ;		call	RestoreUserInts
 		call	set_09_vector
-		mov	dx,@@int_03_entry
+		mov	dx,.int_03_entry
 		call	set_03_vector
 		pop	si
 		pop	es
@@ -574,7 +574,7 @@ go_to_cursor:
 		push	word [cs:cpu_regs+REG_CS]
 		push	word [cs:cpu_regs+REG_IP]
 		iret
-@@int_03_entry:
+.int_03_entry:
 bp_entry:
 		pop	word [cs:cpu_regs+REG_IP]
 		pop	word [cs:cpu_regs+REG_CS]
@@ -590,21 +590,21 @@ act_popup:
 		out	21h,al
 		sti
 		cmp	byte [user_screen_mode],0
-		je	@@n2
+		je	.n2
 		call	save_screen
 		call	draw_cpu_window
-@@n2:
+.n2:
 		call	update_screen
 		mov	ax,[cur_ip_line]
 		cmp	ax,-1
-		jne	@@1
+		jne	.1
 		jmp	go_to_origin
-@@1:
+.1:
 		cmp	ax,[cur_line]
-		je	@@quit
+		je	.quit
 		mov	[cur_line],ax
 		call	update_commands
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; int_09_handler
@@ -613,7 +613,7 @@ int_09_handler:
 		push	ax
 		in	al,60h
 		cmp	al,SCAN_CODE
-		jne	@@quit
+		jne	.quit
 		push	ds
 		xor	ax,ax
 		mov	ds,ax
@@ -621,7 +621,7 @@ int_09_handler:
 		test	al,SHIFT_CODE
 		jnz	int_09_execute
 		pop	ds
-@@quit:
+.quit:
 		pop	ax
 		jmp	far [cs:save_int_09]
 int_09_execute:
@@ -651,16 +651,16 @@ set_breakpoint:
 		mov	[bx+BP_BYTE],al
 		mov	byte [es:si],0cch
 		cmp	byte [es:si],0cch
-		je	@@quit
+		je	.quit
 		stc
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; clear_breakpoint
 ;-----------------------------------------------------------------------------
 clear_breakpoint:
 		cmp	byte [bx+BP_SET],0
-		je	@@quit
+		je	.quit
 		push	ax
 		push	si
 		push	es
@@ -672,7 +672,7 @@ clear_breakpoint:
 		pop	es
 		pop	si
 		pop	ax
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; clear_breakpoints
@@ -683,10 +683,10 @@ clear_breakpoints:
 		mov	bx,bp0
 		mov	cx,MAX_BREAKPOINTS+1
 
-@@next_bp:
+.next_bp:
 		call	clear_breakpoint
 		add	bx,SIZEOF_BREAKPOINT
-		loop	@@next_bp
+		loop	.next_bp
 		ret
 ;=============================================================================
 ; set_breakpoints
@@ -698,17 +698,17 @@ set_breakpoints:
 		push	es
 		mov	bx,bp1
 		mov	cx,MAX_BREAKPOINTS
-@@next_bp:
+.next_bp:
 		cmp	byte [bx+BP_ACTIVE],BP_UNUSED
-		je	@@skip
+		je	.skip
 		cmp	byte [bx+BP_ACTIVE],BP_DISABLED
-		je	@@skip
+		je	.skip
 		mov	es,[bx+BP_SEG]
 		mov	si,[bx+BP_OFFS]
 		call	set_breakpoint
-@@skip:
+.skip:
 		add	bx,SIZEOF_BREAKPOINT
-		loop	@@next_bp
+		loop	.next_bp
 		pop	es
 		pop	si
 		pop	cx
@@ -724,42 +724,42 @@ emulate:
 		mov	si,[cpu_regs+REG_IP]
 		mov	es,[cpu_regs+REG_CS]
 		mov	bx,inst_desc
-@@next_byte:
+.next_byte:
 	es	lodsb
 		xlat
 		test	al,S_PREFIX
-		jnz	@@next_byte
+		jnz	.next_byte
 		test	al,S_EM
-		jnz	@@emulate
-@@quit:
+		jnz	.emulate
+.quit:
 		pop	es
 		pop	ds
 		ret
-@@emulate:
+.emulate:
 		mov	al,[es:si-1]
 		cmp	al,0cdh
-		je	@@int
+		je	.int
 		cmp	al,0ceh
-		je	@@into
+		je	.into
 		cmp	al,9ch
-		je	@@pushf
+		je	.pushf
 		cmp	al,9dh
-		je	@@popf
+		je	.popf
 		cmp	al,0cfh
-		je	@@iret
+		je	.iret
 		clc
-		jmp	@@quit
-@@pushf:
+		jmp	.quit
+.pushf:
 		mov	ax,[cpu_regs+REG_FL]
 		and	ax,~100h
 		call	user_push
-		jmp	@@skip
-@@popf:
+		jmp	.skip
+.popf:
 		call	user_pop
 		and	ax,~100h
 		mov	[cpu_regs+REG_FL],ax
-		jmp	@@skip
-@@iret:
+		jmp	.skip
+.iret:
 		call	user_pop
 		mov	[cpu_regs+REG_IP],ax
 		call	user_pop
@@ -767,15 +767,15 @@ emulate:
 		call	user_pop
 		mov	[cpu_regs+REG_FL],ax
 		stc
-		jmp	@@quit
-@@into:
+		jmp	.quit
+.into:
 		test	byte [cpu_regs+REG_FL+1],00001000b
-		jz	@@skip
+		jz	.skip
 		mov	al,4
-		jmp	@@int_n
-@@int:
+		jmp	.int_n
+.int:
 	es	lodsb
-@@int_n:
+.int_n:
 		push	ax
 		mov	ax,[cpu_regs+REG_FL]
 		and	ax,~100h
@@ -798,11 +798,11 @@ emulate:
 		lodsw
 		mov	[cs:cpu_regs+REG_CS],ax
 		stc
-		jmp	@@quit
-@@skip:
+		jmp	.quit
+.skip:
 		mov	[cpu_regs+REG_IP],si
 		stc
-		jmp	@@quit
+		jmp	.quit
 ;=============================================================================
 ; user_push
 ;-----------------------------------------------------------------------------

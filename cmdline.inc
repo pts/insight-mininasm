@@ -42,55 +42,55 @@ get_cmd_line:
 ; process_options
 ;-----------------------------------------------------------------------------
 process_options:
-@@next_char:
+.next_char:
 		lodsb
 		cmp	al,' '
-		je	@@next_char
+		je	.next_char
 		cmp	al,9
-		je	@@next_char
+		je	.next_char
 		cmp	al,'/'
-		je	@@option
+		je	.option
 		dec	si
 		ret
 
-@@option:
+.option:
 		lodsb
 		call	upcase
 		mov	di,available_options
 
-@@next_option:
+.next_option:
 		scasb
 		mov	ah,[di + (options_bits - available_options) - 1]
-		je	@@set_option
+		je	.set_option
 		cmp	byte [di-1],0
-		jne	@@next_option
+		jne	.next_option
 		mov	ah,CMD_ERROR
 
-@@set_option:
+.set_option:
 		mov	[cmd_line_options],ah
-		jmp	@@next_char
+		jmp	.next_char
 ;=============================================================================
 ; process_param
 ;-----------------------------------------------------------------------------
 process_param:
-@@next_char:
+.next_char:
 		lodsb
 		cmp	al,' '
-		je	@@next_char
+		je	.next_char
 		cmp	al,9
-		je	@@next_char
+		je	.next_char
 
-@@save_char:
+.save_char:
 		cmp	al,13
-		je	@@exit
+		je	.exit
 		cmp	al,ah
-		je	@@exit
+		je	.exit
 ;		call	upcase
 		stosb
 		lodsb
-		jmp	@@save_char
+		jmp	.save_char
 
-@@exit:
+.exit:
 		mov	al,0
 		stosb
 		dec	si

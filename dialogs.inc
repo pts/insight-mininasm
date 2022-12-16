@@ -80,14 +80,14 @@ init_dialog:
 		cbw
 		mov	cx,ax
 		mov	[dlg_items],ax
-		jcxz	@@quit		;Exit if no elements
+		jcxz	.quit		;Exit if no elements
 
 		mov	[dlg_active_item],si	;Ptr to number of active elem.
 		lodsb				;Skip 1 byte
 						;Now SI points to data of
 						;1st element
 		mov	di,dlg_items_data
-@@next:
+.next:
 		lodsb			;index in items_table
 		cbw
 		add	ax,items_table
@@ -96,8 +96,8 @@ init_dialog:
 		mov	[di],si		;SI -> data for init_*
 		scasw
 		call	[bx]		;call `init' proc, on entry:
-		loop	@@next		;SI -> data;  on exit:
-@@quit:					;SI -> next table (ie. data skipped)
+		loop	.next		;SI -> data;  on exit:
+.quit:					;SI -> next table (ie. data skipped)
 		call	popr
 		ret
 ;=============================================================================
@@ -132,13 +132,13 @@ exec_dialog_:
 		mov	es,[video_seg]
 		cld
 		mov	cx,[dlg_items]
-		jcxz	@@quit
+		jcxz	.quit
 
 		mov	bx,[dlg_active_item]
 		mov	bl,[bx]		;Number of active element
 		mov	bh,0
 
-@@next:
+.next:
 		push	cx
 		call	no_cursor
 		pop	cx
@@ -155,45 +155,45 @@ exec_dialog_:
 		pop	bx
 
 		or	ax,ax			;ESC?
-		jz	@@quit			;Yes, exit
+		jz	.quit			;Yes, exit
 		cmp	ax,1
-		je	@@enter
-@@find_next:
+		je	.enter
+.find_next:
 		cmp	ax,2			;Tab
-		je	@@inc
+		je	.inc
 		or	bx,bx			;First element?
-		jz	@@end			;Yes, move to last element
+		jz	.end			;Yes, move to last element
 		dec	bx			;(Shift+Tab)
-		jmp	@@check_static
-@@end:
+		jmp	.check_static
+.end:
 		mov	bx,cx
 		dec	bx
-		jmp	@@check_static
-@@inc:
+		jmp	.check_static
+.inc:
 		inc	bx
 		cmp	bx,cx
-		jb	@@check_static
-@@home:
+		jb	.check_static
+.home:
 		xor	bx,bx
 
-@@check_static:
+.check_static:
 		mov	di,bx
 		add	di,di
 		mov	si,[dlg_items_data+di]
 		cmp	byte [si-2],STATIC_TEXT
-		jne	@@next
-		jmp	@@find_next
+		jne	.next
+		jmp	.find_next
 
-@@quit:
+.quit:
 		xor	ax,ax		; CM_CANCEL
 		mov	si,[dlg_active_item]
 		mov	bl,[si]
 
-@@exit:
+.exit:
 		mov	si,[dlg_active_item]
 		mov	[si],bl
 
-@@restore_cursor:
+.restore_cursor:
 		mov	[exec_dialog_res],ax
 		pop	cx
 		call	set_cursor
@@ -203,13 +203,13 @@ exec_dialog_:
 		mov	ax,[exec_dialog_res]
 		or	ax,ax
 		ret
-@@enter:
+.enter:
 		mov	ax,CM_DEFAULT
 
 		cmp	byte [si-2],PUSH_BUTTON
-		jne	@@exit
+		jne	.exit
 		mov	ax,[si+5]	;return CM_* if pushbutton was pressed
-		jmp	@@exit
+		jmp	.exit
 ;=============================================================================
 ; init_push_button
 ;-----------------------------------------------------------------------------
@@ -230,10 +230,10 @@ init_push_button:
 		mov	bh,atPushButton
 		mov	bl,atlPushButton
 		test	byte [si-1],BF_DEFAULT
-		jz	@@1
+		jz	.1
 		mov	bh,atPushButtonDef
 		mov	bl,atlPushButtonDef
-@@1:
+.1:
 		mov	dl,0
 		call	draw_push_button
 		add	si,7
@@ -265,19 +265,19 @@ draw_push_button:
 		push	cx
 		mov	al,' '
 		or	dl,dl
-		jz	@@2
+		jz	.2
 		mov	ah,atDialogWindow
 		stosw
-@@2:
+.2:
 		mov	ah,bh
 	rep	stosw
 		mov	ah,atButtonShadow
 		or	dl,dl
-		jnz	@@3
+		jnz	.3
 		mov	al,'Ü'
 		stosw
 		mov	al,'ß'
-@@3:
+.3:
 		mov	di,bp
 		add	di,(SCR_COLS+1)*2	;162
 		pop	cx
@@ -290,9 +290,9 @@ draw_push_button:
 		shr	ax,1
 		shr	cx,1
 		sub	ax,cx
-		jns	@@1
+		jns	.1
 		xor	ax,ax
-@@1:
+.1:
 		add	al,dl
 		mov	di,bp
 		add	di,ax
@@ -315,18 +315,18 @@ draw_push_button:
 ; Use:	---
 ;
 draw_text:
-@@next:
+.next:
 		lodsb
 		cmp	al,0
-		je	@@done
+		je	.done
 		cmp	al,'~'
-		jne	@@store
+		jne	.store
 		xchg	ah,bl
-		jmp	@@next
-@@store:
+		jmp	.next
+.store:
 		stosw
-		jmp	@@next
-@@done:
+		jmp	.next
+.done:
 		ret
 ;=============================================================================
 ; run_push_button
@@ -350,25 +350,25 @@ run_push_button:
 		mov	bl,atlsPushButton
 		mov	dl,0
 		call	draw_push_button
-@@again:
+.again:
 		call	read_key
 		call	check_move_key
-		jc	@@again
+		jc	.again
 
 		mov	bh,atPushButton
 		mov	bl,atlPushButton
 		cmp	ax,1		;Enter?
-		jne	@@quit
+		jne	.quit
 		mov	dl,1		;Draw pressed button
 		call	draw_push_button
 		xor	cx,cx		;\ Replace !!!
 		loop	$		;/
-@@quit:
+.quit:
 		test	byte [si-1],BF_DEFAULT
-		jz	@@1
+		jz	.1
 		mov	bh,atPushButtonDef
 		mov	bl,atlPushButtonDef
-@@1:
+.1:
 		mov	dl,0		;Redraw button
 		call	draw_push_button
 		pop	cx
@@ -421,13 +421,13 @@ draw_input_line:
 		lodsw			;Ptr to buffer
 		mov	si,ax
 		mov	ah,atInputLine
-@@next:
+.next:
 		lodsb
 		cmp	al,0
-		je	@@done
+		je	.done
 		stosw
-		loop	@@next
-@@done:
+		loop	.next
+.done:
 		mov	al,' '
 		inc	cx
 	rep	stosw
@@ -499,10 +499,10 @@ draw_label:
 		mov	ah,atLabel
 		mov	bl,atlLabel
 		or	dl,dl
-		jz	@@1
+		jz	.1
 		mov	ah,atsLabel
 		mov	bl,atlsLabel
-@@1:
+.1:
 		call	draw_text
 		call	popr
 		ret
@@ -570,44 +570,44 @@ draw_list:
 		mov	dx,[string_count]
 		mov	bx,[list_height]
 		cmp	dx,bx
-		jbe	@@ns
+		jbe	.ns
 		mov	dx,bx
-@@ns:
+.ns:
 		sub	bx,dx
 		push	bx
 		mov	bx,[list_first]
 		or	dx,dx
-		jz	@@clear
-@@next_line:
+		jz	.clear
+.next_line:
 		mov	ah,atListNormal
 		cmp	bx,[cur_str]
-		jne	@@2
+		jne	.2
 
 		mov	ah,atListDefault
 		cmp	byte [list_act],0
-		je	@@2
+		je	.2
 
 		mov	ah,atListSelected
-@@2:
+.2:
 		push	cx
 		mov	di,bp
 		mov	al,' '
 		stosw
-@@next1:
+.next1:
 		lodsb
 		stosw
-		loop	@@next1
+		loop	.next1
 
 		pop	cx
 		inc	bx
 		add	bp,SCR_COLS*2
 		dec	dx
-		jnz	@@next_line
-@@clear:
+		jnz	.next_line
+.clear:
 		pop	bx
 		or	bx,bx
-		jz	@@all
-@@next_clear:
+		jz	.all
+.next_clear:
 		mov	ah,atListNormal
 		mov	di,bp
 		push	cx
@@ -617,8 +617,8 @@ draw_list:
 		pop	cx
 		add	bp,SCR_COLS*2
 		dec	bx
-		jnz	@@next_clear
-@@all:
+		jnz	.next_clear
+.all:
 		call	popr
 		ret
 ;=============================================================================
@@ -647,8 +647,8 @@ run_list:
 		mov	bx,[cur_str]		;\ 2007-11-12
 		mov	cx,[list_first]		;/
 		mov	dx,[string_count]
-@@again:
-		call	@@set_link
+.again:
+		call	.set_link
 		mov	[cur_str],bx
 		mov	[list_first],cx
 		push	dx
@@ -657,84 +657,84 @@ run_list:
 		pop	dx
 		call	read_key
 		or	dx,dx
-;		jnz	@@not_cmk
-;		jmp	@@cmk
-;@@not_cmk:
-		jz	@@cmk		;!!!
+;		jnz	.not_cmk
+;		jmp	.cmk
+;.not_cmk:
+		jz	.cmk		;!!!
 		cmp	ax,kbDown
-		jne	@@1
+		jne	.1
 		inc	bx
 		cmp	bx,dx
-		jb	@@loc_correct
-@@end:
+		jb	.loc_correct
+.end:
 		mov	bx,dx
 		dec	bx
-@@loc_correct:
-		jmp	@@correct
-@@1:
+.loc_correct:
+		jmp	.correct
+.1:
 		cmp	ax,kbUp
-		jne	@@2
+		jne	.2
 		or	bx,bx
-		jz	@@again
+		jz	.again
 		dec	bx
 
-		jmp	@@correct
-@@2:
+		jmp	.correct
+.2:
 		cmp	ax,kbHome
-		jne	@@3
-@@home:
+		jne	.3
+.home:
 		xor	bx,bx
-		jmp	@@correct
-@@3:
+		jmp	.correct
+.3:
 		cmp	ax,kbEnd
-		je	@@end
+		je	.end
 		cmp	ax,kbPgUp
-		jne	@@4
+		jne	.4
 		or	cx,cx
-		jz	@@home
+		jz	.home
 		cmp	cx,[list_height]
-		ja	@@big_up
+		ja	.big_up
 		xor	cx,cx
-@@pg_corr:
+.pg_corr:
 		mov	bx,cx
 		add	bx,[list_height]
 		dec	bx
-		jmp	@@correct
-@@big_up:
+		jmp	.correct
+.big_up:
 		sub	cx,[list_height]
-		jmp	@@pg_corr
-@@4:
+		jmp	.pg_corr
+.4:
 		cmp	ax,kbPgDn
-		jne	@@cmk
+		jne	.cmk
 		cmp	dx,[list_height]
-		jbe	@@end
+		jbe	.end
 		push	cx
 		add	cx,[list_height]
 		cmp	cx,dx
-		jne	@@5
+		jne	.5
 		pop	cx
-		jmp	@@end
-@@5:
+		jmp	.end
+.5:
 		add	cx,[list_height]
 		cmp	cx,dx
 		pop	cx
-		jbe	@@big_down
+		jbe	.big_down
 		mov	cx,dx
 		sub	cx,[list_height]
 		mov	bx,cx
-		jmp	@@correct
-@@big_down:
+		jmp	.correct
+.big_down:
 		add	cx,[list_height]
 		mov	bx,cx
-		jmp	@@correct
-@@cmk:
+		jmp	.correct
+.cmk:
 		call	check_move_key
-		jc	@@loc_again
+		jc	.loc_again
 		cmp	ax,1
-		jne	@@quit
+		jne	.quit
 		mov	[list_choice],bx
-		call	@@set_link
-@@quit:
+		call	.set_link
+.quit:
 		mov	[list_choice],bx	;0leg, 2007-02-08
 ;		mov	word [cur_str],1	;!!!
 		mov	dl,0
@@ -742,28 +742,28 @@ run_list:
 		pop	cx
 		pop	bx
 		ret
-@@correct:
+.correct:
 		cmp	bx,cx
-		jb	@@lower
+		jb	.lower
 		push	cx
 		add	cx,[list_height]
 		cmp	bx,cx
 		pop	cx
-		jb	@@loc_again
-@@upper:
+		jb	.loc_again
+.upper:
 		mov	cx,bx
 		sub	cx,[list_height]
 		inc	cx
-		jmp	@@again
-@@lower:
+		jmp	.again
+.lower:
 		mov	cx,bx
-@@loc_again:
-		jmp	@@again
-@@set_link:
+.loc_again:
+		jmp	.again
+.set_link:
 		cmp	word [link_string],0
-		je	@@skip_link
+		je	.skip_link
 		or	dx,dx
-		jz	@@skip_link
+		jz	.skip_link
 		push	ax
 		push	cx
 		push	si
@@ -787,7 +787,7 @@ run_list:
 		pop	si
 		pop	cx
 		pop	ax
-@@skip_link:
+.skip_link:
 		ret
 ;=============================================================================
 ; trim_spaces
@@ -806,9 +806,9 @@ trim_spaces:
 		dec	di
 		mov	al,' '
 	repe	scasb
-		je	@@emp
+		je	.emp
 		inc	di
-@@emp:
+.emp:
 		inc	di
 		mov	al,0
 		cld
@@ -845,32 +845,32 @@ add_string:
 		mov	ax,string_buffer+STRING_BUF_SIZE
 		sub	ax,[string_size]
 		cmp	[string_ptr],ax
-		jb	@@1
+		jb	.1
 		stc
 		ret
-@@1:
+.1:
 		call	pushr
 		push	cs
 		pop	es
 		mov	di,[string_ptr]
 		cld
 		mov	cx,[string_size]
-@@next:
+.next:
 		lodsb
 		cmp	al,0
-		je	@@done
+		je	.done
 		stosb
-		loop	@@next
-@@end:
+		loop	.next
+.end:
 		mov	[string_ptr],di
 		inc	word [string_count]
 		call	popr
 		clc
 		ret
-@@done:
+.done:
 		mov	al,' '
 	rep	stosb
-		jmp	@@end
+		jmp	.end
 ;=============================================================================
 ; init_static_text
 ;-----------------------------------------------------------------------------
@@ -900,17 +900,17 @@ init_static_text:
 		push	di
 		push	bp
 		xchg	ax,si		;Instead of MOV SI,AX
-@@next:
+.next:
 		lodsw			;Coordinates
 		or	ax,ax		;0?
-		jz	@@exit		;Yes, exit
+		jz	.exit		;Yes, exit
 		add	ax,[dlg_win_a]
 		call	get_addr
 		lodsw			;Ptr to string
 		mov	dl,0		;Normal label
 		call	draw_label
-		jmp	@@next
-@@exit:
+		jmp	.next
+.exit:
 		pop	bp
 		pop	di
 		pop	si
@@ -984,25 +984,25 @@ draw_check_boxes:
 		lodsw			;Result / initial settings
 		xchg	ax,dx
 
-@@next:
+.next:
 		lodsw			;Ptr to label
 		push	si
 		xchg	ax,si
 
 		mov	ah,atCheckBoxes
 		cmp	[cb_cur],cl	;Selected?
-		jne	@@2
+		jne	.2
 		mov	ah,atsCheckBoxes;Yes
-@@2:
+.2:
 		mov	al,' '
 		stosw
 		mov	al,'['
 		stosw
 		mov	al,' '
 		shr	dx,1
-		jnc	@@1
+		jnc	.1
 		mov	al,'X'
-@@1:
+.1:
 		stosw
 		mov	al,']'
 		stosw
@@ -1025,7 +1025,7 @@ draw_check_boxes:
 		mov	di,bp
 		pop	si		;Ptr to next label
 
-		loop	@@next
+		loop	.next
 
 		mov	[cb_si],si	;Ptr to structure of next element
 		call	popr
@@ -1051,7 +1051,7 @@ run_check_boxes:
 		push	cx
 		call	small_cursor
 		xor	cx,cx
-@@again:
+.again:
 		mov	dx,[si]		;Coordinates
 		add	dx,[dlg_win_a]
 		add	dh,cl		;Current checkbox
@@ -1064,30 +1064,30 @@ run_check_boxes:
 
 		call	read_key
 		cmp	ax,kbDown
-		jne	@@d
+		jne	.d
 		inc	cx
 		cmp	cx,[si+4]	;Number of check boxes
-		jb	@@again
+		jb	.again
 		xor	cx,cx
-		jmp	@@again
-@@d:
+		jmp	.again
+.d:
 		cmp	ax,kbUp
-		jne	@@u
+		jne	.u
 		dec	cx
-		jns	@@again
+		jns	.again
 		mov	cx,[si+4]	;Number of check boxes
 		dec	cx
-		jmp	@@again
-@@u:
+		jmp	.again
+.u:
 		cmp	ax,kbSpace
-		jne	@@s
+		jne	.s
 		mov	ax,1
 		shl	ax,cl
 		xor	[si+8],ax	;Toggle one bit of result
-		jmp	@@again
-@@s:
+		jmp	.again
+.s:
 		call	check_move_key
-		jc	@@again
+		jc	.again
 		mov	dl,0		;Inactive label
 		mov	byte [cb_cur],-1;Inactive check boxes
 		call	draw_check_boxes
@@ -1126,16 +1126,16 @@ run_check_boxes:
 ;~		mov	dx,cx
 ;~		sub	dx,ax	; pos
 ;~		mov	dh,bl
-;~@@Next:
+;~.Next:
 ;~		mov	ah,atRadioButtons
 ;~		mov	bh,' '
 ;~		cmp	dl,cl
-;~		jne	@@2
+;~		jne	.2
 ;~		mov	bh,7
 ;~		or	dh,dh
-;~		jz	@@2
+;~		jz	.2
 ;~		mov	ah,atsRadioButtons
-;~@@2:
+;~.2:
 ;~		mov	al,' '
 ;~		stosw
 ;~		mov	al,'('
@@ -1159,7 +1159,7 @@ run_check_boxes:
 ;~		pop	cx
 ;~		add	bp,160
 ;~		mov	di,bp
-;~		loop	@@Next
+;~		loop	.Next
 ;~
 ;~		mov	CBSI,si
 ;~		call	popr
@@ -1171,7 +1171,7 @@ run_check_boxes:
 ;~		mov	cx,0607h
 ;~		call	set_cursor
 ;~		mov	cx,[si+8]
-;~@@Again:
+;~.Again:
 ;~		mov	dx,[si]
 ;~		add	dx,DlgWinA
 ;~		add	dh,cl
@@ -1184,23 +1184,23 @@ run_check_boxes:
 ;~
 ;~		call	read_key
 ;~		cmp	ax,kbDown
-;~		jne	@@D
+;~		jne	.D
 ;~		inc	cx
 ;~		cmp	cx,[si+4]
-;~		jb	@@Again
+;~		jb	.Again
 ;~		xor	cx,cx
-;~		jmp	@@Again
-;~@@D:
+;~		jmp	.Again
+;~.D:
 ;~		cmp	ax,kbUp
-;~		jne	@@U
+;~		jne	.U
 ;~		dec	cx
-;~		jns	@@Again
+;~		jns	.Again
 ;~		mov	cx,[si+4]
 ;~		dec	cx
-;~		jmp	@@Again
-;~@@U:
+;~		jmp	.Again
+;~.U:
 ;~		call	CheckMoveKey
-;~		jc	@@Again
+;~		jc	.Again
 ;~		mov	dl,0
 ;~		mov	CBcur,-1
 ;~		call	DrawRadioButtons
@@ -1239,15 +1239,15 @@ get_string_addr:
 point_len:
 		xor	cx,cx
 		push	si
-@@next:
+.next:
 		lodsb
 		cmp	al,0
-		je	@@done
+		je	.done
 		cmp	al,'~'
-		je	@@next
+		je	.next
 		inc	cx
-		jmp	@@next
-@@done:
+		jmp	.next
+.done:
 		pop	si
 		ret
 ;=============================================================================
@@ -1268,25 +1268,25 @@ point_len:
 ;
 check_move_key:
 		cmp	ax,kbEsc
-		je	@@0
+		je	.0
 		cmp	ax,kbEnter
-		je	@@1
+		je	.1
 		cmp	ax,kbTab
-		je	@@2
+		je	.2
 		cmp	ax,kbShiftTab
-		je	@@3
+		je	.3
 		stc
 		ret
-@@0:
+.0:
 		xor	ax,ax
 		ret
-@@1:
+.1:
 		mov	ax,1
 		ret
-@@2:
+.2:
 		mov	ax,2
 		ret
-@@3:
+.3:
 		mov	ax,3
 		ret
 ;=============================================================================

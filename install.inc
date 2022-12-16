@@ -59,9 +59,9 @@ install:
 		mov	ax,5803h
 		mov	bx,1		;Link UMB for allocations
 		int	21h
-		jc	@@no_umbs
+		jc	.no_umbs
 		mov	byte [umb_available],1
-@@no_umbs:
+.no_umbs:
 		pop	bx
 		mov	ax,5803h
 		int	21h		;Restore UMB link state
@@ -70,9 +70,9 @@ install:
 		mov	[video_type],al	;1 == VGA, 0 == EGA
 
 		call	is_hma_exist
-		jnc	@@command_line
+		jnc	.command_line
 		or	word [search_options],SRCH_EXCL_HMA
-@@command_line:
+.command_line:
 
 		mov	word [my_cmd_line],0d00h
 		mov	byte [cmd_line_string],0
@@ -83,21 +83,21 @@ install:
 
 		mov	dx,help_msg
 		test	byte [cmd_line_options],CMD_HELP
-		jnz	@@display_error
+		jnz	.display_error
 
 		mov	dx,error_help_msg
 		test	byte [cmd_line_options],CMD_ERROR
 		jnz	display_error
 
 		test	byte [cmd_line_options],CMD_EGA
-		jz	@@not_ega
+		jz	.not_ega
 		mov	byte [video_type],0		;1 == VGA, 0 == EGA
-@@not_ega:
+.not_ega:
 
 		test	byte [cmd_line_options],CMD_UNLOAD
 		jnz	..@unload
 
-@@check_memory:
+.check_memory:
 		xor	cx,cx
 		call	calc_prog_size
 		mov	sp,ax
@@ -109,14 +109,14 @@ install:
 		jc	display_error
 		jmp	init
 
-@@display_error:
+.display_error:
 		mov	byte [beep_char],'$'
 display_error:
 		call	write_message
 		mov	dx,eol
 		call	write_message
 
-@@error_quit:
+.error_quit:
 		mov	ax,4c01h
 		int	21h
 
@@ -150,13 +150,13 @@ display_error:
 		mov	es,[2ch]
 		mov	ah,49h
 		int	21h
-		jc	@@skip_free
+		jc	.skip_free
 		push	ds
 		pop	es
 		mov	ah,49h
 		int	21h
 
-@@skip_free:
+.skip_free:
 		push	cs
 		pop	ds
 		mov	dx,memory_free_msg
@@ -164,7 +164,7 @@ display_error:
 
 		mov	dx,unloaded_msg
 		call	write_message
-		jmp	@@error_quit
+		jmp	.error_quit
 ;-----------------------------------------------------------------------------
 ; init
 ;-----------------------------------------------------------------------------
@@ -172,24 +172,24 @@ init:
 		call	save_int_table
 
 		test	byte [cmd_line_options],CMD_RESIDENT
-		jz	@@check_prog_name
+		jz	.check_prog_name
 		call	is_resident
-		jne	@@create_program
+		jne	.create_program
 		mov	dx,alredy_tsr_msg
 		jmp	display_error
 
-@@check_prog_name:
+.check_prog_name:
 		cmp	byte [filename],0
-		je	@@create_program
+		je	.create_program
 		call	set_command_line
 		call	load_program
-		jnc	@@loaded
+		jnc	.loaded
 		mov	byte [loaded],0
 
-@@create_program:
+.create_program:
 		call	create_program
 
-@@loaded:
+.loaded:
 		call	set_user_pid
 		call	set_term_handler
 		call	save_font
@@ -201,7 +201,7 @@ init:
 
 		call	get_cpu_type
 		cmp	al,7fh
-		jne	@@set_cpu_type
+		jne	.set_cpu_type
 
 	cpu	586
 		xor	eax,eax
@@ -216,26 +216,26 @@ init:
 
 		and	ah,0fh
 		cmp	ah,6			;ah == 0fh on Pentium-4
-		jbe	@@cpu_type_ok
+		jbe	.cpu_type_ok
 		mov	ah,6
-@@cpu_type_ok:
+.cpu_type_ok:
 		add	[cpu_advanced_id],ah
 		mov	ax,4
 		mov	word [cpu_names+8],cpu_advanced
 
-@@set_cpu_type:
+.set_cpu_type:
 		mov	[system_cpu],al
 		cmp	al,3
-		jb	@@skip_enable
+		jb	.skip_enable
 		mov	word [reg_mode_stat_1],0
 		mov	word [reg_mode_stat_2],0
 
-@@skip_enable:
+.skip_enable:
 		mov	bx,ax
 		or	ax,ax
-		jz	@@1
+		jz	.1
 		dec	ax
-@@1:
+.1:
 		mov	[opt_cpu],al
 		add	al,a86
 		mov	[cpu_type],al
@@ -267,17 +267,17 @@ get_video_type:
 		mov	bl,10h
 		int	10h
 		cmp	bl,10h
-		je	@@old_video
+		je	.old_video
 		mov	ax,1a00h
 		int	10h
 		cmp	al,1ah
-		jne	@@old_video
+		jne	.old_video
 		cmp	bl,7
-		jbe	@@old_video
+		jbe	.old_video
 		mov	al,1
 		ret
 
-@@old_video:
+.old_video:
 		xor	ax,ax
 		ret
 ;=============================================================================
@@ -287,30 +287,30 @@ is_hma_exist:
 		mov	ax,4300h
 		int	2fh
 		cmp	al,80h
-		jne	@@error_exit
+		jne	.error_exit
 
 		push	es
 		mov	ax,4310h
 		int	2fh
 
 		push	cs
-		mov	ax,@@ret_point
+		mov	ax,.ret_point
 		push	ax
 		mov	ah,0
 		push	es
 		push	bx
 		retf
 
-@@ret_point:
+.ret_point:
 		pop	es
 		or	ax,ax
-		jz	@@error_exit
+		jz	.error_exit
 		or	dx,dx
-		jz	@@error_exit
+		jz	.error_exit
 		clc
 		ret
 
-@@error_exit:
+.error_exit:
 		stc
 		ret
 ;=============================================================================
@@ -318,20 +318,20 @@ is_hma_exist:
 ;-----------------------------------------------------------------------------
 set_prefixes:
 		cmp	byte [system_cpu],3
-		jb	@@exit
-		mov	cx,@@prefix_table_end - @@prefix_table
-		mov	si,@@prefix_table
+		jb	.exit
+		mov	cx,.prefix_table_end - .prefix_table
+		mov	si,.prefix_table
 		xor	bx,bx
-@@next:
+.next:
 		mov	bl,[si]
 		lea	di,[first_prefix+bx]
 		mov	byte [di],066h
 		inc	si
-		loop	@@next
-@@exit:
+		loop	.next
+.exit:
 		ret
 ;-----------------------------------------------------------------------------
-@@prefix_table:
+.prefix_table:
 		db	prefix_01 - first_prefix
 		db	prefix_02 - first_prefix
 		db	prefix_03 - first_prefix
@@ -351,7 +351,7 @@ set_prefixes:
 		db	prefix_17 - first_prefix
 		db	prefix_18 - first_prefix
 		db	prefix_19 - first_prefix
-@@prefix_table_end:
+.prefix_table_end:
 ;=============================================================================
 
 available_options db	"ERUH?",0

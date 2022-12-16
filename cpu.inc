@@ -53,32 +53,32 @@ get_cpu_type:
 		pop	ax
 		and	ax,0f000h
 		cmp	ax,0f000h
-		jne	@@cpu1
+		jne	.cpu1
 		xor	cx,cx
-		mov	di,@@inc_cx
+		mov	di,.inc_cx
 		mov	al,90h
 		cli
 		mov	[di],al
 		nop
 		nop
 		nop
-@@inc_cx:
+.inc_cx:
  		inc	cx
 		sti
 		mov	ax,1
 		sub	ax,cx
-		jmp	@@quit
-@@cpu1:
+		jmp	.quit
+.cpu1:
 		or	ax,0f000h
 		push	ax
 		popf
 		pushf
 		pop	ax
 		and	ax,0f000h
-		jnz	@@cpu2
+		jnz	.cpu2
 		mov	al,2
-		jmp	@@quit
-@@cpu2:
+		jmp	.quit
+.cpu2:
 		mov	bx,sp
 		and	sp,~3
 		pushfd
@@ -92,7 +92,7 @@ get_cpu_type:
 		mov	sp,bx
 		xor	eax,ecx
 		mov	al,3
-		jz	@@quit
+		jz	.quit
 		mov	ebx,200000h
 		mov	eax,ecx
 		xor	eax,ebx
@@ -106,9 +106,9 @@ get_cpu_type:
 		and	ecx,ebx
 		cmp	eax,ecx
 		mov	al,4
-		jz	@@quit
+		jz	.quit
 		mov	al,7fh
-@@quit:
+.quit:
 		cbw
 		pop	cx
 		pop	bx

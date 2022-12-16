@@ -93,23 +93,23 @@ calc_prog_size:
 		push	cx
 		mov	ax,[code_end]
 		add	ax,cx
-		jc	@@exit
+		jc	.exit
 		test	ax,0fh
-		jz	@@calc_size
+		jz	.calc_size
 		and	ax,0fff0h
 		add	ax,10h
-		jc	@@exit
-@@calc_size:
+		jc	.exit
+.calc_size:
 		add	ax,STACK_SIZE
-		jc	@@exit
+		jc	.exit
 		cmp	ax,MAX_PROGRAM_SIZE+1
 		cmc
-		jc	@@exit
+		jc	.exit
 		mov	cl,4
 		mov	dx,ax
 		shr	dx,cl
 		clc
-@@exit:
+.exit:
 		pop	cx
 		ret
 ;=============================================================================
@@ -127,12 +127,12 @@ calc_prog_size:
 ; Use:	---
 ;
 action_short_jump:
-@@next:
+.next:
 		add	di,3
 		cmp	word [di],0
-		je	@@exit
+		je	.exit
 		cmp	word [di],ax
-		jne	@@next
+		jne	.next
 		push	ax
 		xor	ax,ax
 		mov	al,[di+2]
@@ -140,7 +140,7 @@ action_short_jump:
 		pop	ax
 		clc
 		ret
-@@exit:
+.exit:
 		stc
 		ret
 ;=============================================================================
@@ -158,12 +158,12 @@ action_short_jump:
 ; Use:	---
 ;
 action_long_jump:
-@@next:
+.next:
 		add	di,4
 		cmp	word [di],0
-		je	@@exit
+		je	.exit
 		cmp	word [di],ax
-		jne	@@next
+		jne	.next
 ;		push	ax
 ;		xor	ax,ax
 ;		mov	al,[di+2]
@@ -172,7 +172,7 @@ action_long_jump:
 		mov	di,[di+2]
 		clc
 		ret
-@@exit:
+.exit:
 		stc
 		ret
 ;=============================================================================
@@ -207,7 +207,7 @@ fill_byte_str:
 		push	ax
 		push	cx
 		mov	cl,4
-@@next:
+.next:
 		push	ax
 		shr	al,cl
 		and	al,0fh
@@ -217,7 +217,7 @@ fill_byte_str:
 		stosb
 		pop	ax
 		sub	cl,4
-		jz	@@next
+		jz	.next
 
 		pop	cx
 		pop	ax
@@ -237,11 +237,11 @@ strlen:
 		push	ax
 		push	si
 		xor	cx,cx
-@@next:
+.next:
 		inc	cx
 		lodsb
 		or	al,al
-		jnz	@@next
+		jnz	.next
 		dec	cx
 		pop	si
 		pop	ax
@@ -258,11 +258,11 @@ strlen:
 ;
 upcase:
 		cmp	al,'a'
-		jb	@@quit
+		jb	.quit
 		cmp	al,'z'
-		ja	@@quit
+		ja	.quit
 		sub	al,20h
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; lowcase
@@ -276,11 +276,11 @@ upcase:
 ;
 lowcase:
 		cmp	al,'A'
-		jb	@@quit
+		jb	.quit
 		cmp	al,'Z'
-		ja	@@quit
+		ja	.quit
 		add	al,20h
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; upline
@@ -297,14 +297,14 @@ upline:
 		push	si
 		push	di
 		mov	di,si
-@@next:
+.next:
 		lodsb
 		cmp	al,0
-		je	@@quit
+		je	.quit
 		call	upcase
 		stosb
-		jmp	@@next
-@@quit:
+		jmp	.next
+.quit:
 		pop	di
 		pop	si
 		ret
@@ -356,18 +356,18 @@ beep:
 ascii_to_bin:
 		call	upcase
 		cmp	al,'0'
-		jb	@@error
+		jb	.error
 		cmp	al,'9'
-		jbe	@@digit
+		jbe	.digit
 		cmp	al,'A'
-		jb	@@error
+		jb	.error
 		cmp	al,'G'
 		cmc
-		jc	@@error
+		jc	.error
 		sub	al,7
-@@digit:
+.digit:
 		sub	al,'0'
-@@error:
+.error:
 		ret
 ;=============================================================================
 ; E0F

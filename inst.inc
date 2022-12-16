@@ -46,40 +46,40 @@ check_swap:
 		push	es
 
 		cmp	byte [swap_mode],0
-		je	@@not
+		je	.not
 		cmp	byte [swap_mode],2
-		je	@@swap
+		je	.swap
 		cmp	dl,2
-		jae	@@swap
+		jae	.swap
 
 		mov	si,[cpu_regs+REG_IP]
 		mov	es,[cpu_regs+REG_CS]
 		call	get_inst_desc
 
 		test	al,[s_sw7]
-		jnz	@@swap
+		jnz	.swap
 		test	al,S_SW8
-		jnz	@@swap_8
+		jnz	.swap_8
 		test	al,S_SW7M
-		jz	@@not
+		jz	.not
 	es	lodsb
 		and	al,11000000b
 		cmp	al,11000000b
-		jne	@@swap
-@@not:
+		jne	.swap
+.not:
 		mov	byte [swap_flag],0
-@@quit:
+.quit:
 		pop	es
 		pop	si
 		pop	bx
 		pop	ax
 		ret
-@@swap_8:
+.swap_8:
 		or	dl,dl
-		jz	@@not
-@@swap:
+		jz	.not
+.swap:
 		mov	byte [swap_flag],1
-		jmp	@@quit
+		jmp	.quit
 
 swap_flag	db	0
 ;=============================================================================
@@ -94,9 +94,9 @@ check_jump:
 		mov	es,[cpu_regs+REG_CS]
 		call	get_inst_desc
 		test	al,S_JMP
-		jz	@@quit
+		jz	.quit
 		stc
-@@quit:
+.quit:
 		pop	es
 		pop	si
 		pop	bx
@@ -114,20 +114,20 @@ check_jump:
 ;~		mov	es,_CS
 ;~		call	GetInstDesc
 ;~		test	al,S_EM78
-;~		jz	@@Quit
+;~		jz	.Quit
 ;~		or	dl,dl
-;~		jz	@@SS
+;~		jz	.SS
 ;~		test	al,S_EM8
-;~		jz	@@Quit
-;~@@Emul:
+;~		jz	.Quit
+;~.Emul:
 ;~		stc
-;~@@Quit:
+;~.Quit:
 ;~		pop	es si bx ax
 ;~		ret
-;~@@SS:
+;~.SS:
 ;~		test	al,S_EM7
-;~		jz	@@Quit
-;~		jmp	@@Emul
+;~		jz	.Quit
+;~		jmp	.Emul
 ;~endp
 ;~#
 
@@ -137,14 +137,14 @@ check_jump:
 get_inst_desc:
 		mov	bx,inst_desc
 		cld
-@@pref:
+.pref:
 	es	lodsb
 		xlat
 		test	al,S_PREFIX
-		jnz	@@pref
+		jnz	.pref
 		test	al,S_GRP
-		jz	@@quit
-@@grp:
+		jz	.quit
+.grp:
 		mov	al,[es:si]
 		mov	bx,s_grjump
 		mov	ah,al
@@ -153,7 +153,7 @@ get_inst_desc:
 		shr	al,1
 		and	al,0111b
 		xlat
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 inst_desc:

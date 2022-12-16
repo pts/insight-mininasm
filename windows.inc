@@ -86,80 +86,80 @@ exec_menu:
 		lodsw			;Number of menu items
 		mov	cx,ax
 		mov	bx,[h_pos]
-@@next:
+.next:
 		call	update_hmenu
-@@read:
+.read:
 		call	read_key
 		cmp	ax,kbEsc
-		je	@@esc
+		je	.esc
 		cmp	ax,kbAltAlone
-		je	@@esc
+		je	.esc
 		cmp	ax,kbEnter
-		je	@@enter
+		je	.enter
 		cmp	ax,kbDown
-		je	@@enter
+		je	.enter
 		cmp	ax,kbRight
-		je	@@right
+		je	.right
 		cmp	ax,kbLeft
-		je	@@left
+		je	.left
 		push	si
 		mov	si,[si]		;Ptr to string list
 		call	find_menu_letter
 		pop	si
-		jc	@@read
+		jc	.read
 		mov	bx,ax		;Menu item
 		call	update_hmenu
-		jmp	@@enter
-@@right:
+		jmp	.enter
+.right:
 		inc	bx
 		cmp	bx,cx
-		jb	@@next
+		jb	.next
 		xor	bx,bx
-		jmp	@@next
-@@left:
+		jmp	.next
+.left:
 		dec	bx
-		jns	@@next
+		jns	.next
 		mov	bx,cx
 		dec	bx
-		jmp	@@next
-@@enter:
+		jmp	.next
+.enter:
 		push	si
 		mov	si,[si+2]	;Ptr to list of submenus
 		call	exec_sub_menu
 		pop	si
 		cmp	ax,2
-		je	@@left_exp
+		je	.left_exp
 		cmp	ax,3
-		je	@@right_exp
+		je	.right_exp
 		cmp	ax,100h
-		jae	@@quit
-@@esc:
+		jae	.quit
+.esc:
 		xor	ax,ax
-@@quit:
+.quit:
 		mov	word [point_options],0
 		mov	[h_pos],bx
 ;		xor	bx,bx
 ;		mov	dx,79
 		call	restore_window
 		or	ax,ax
-		jz	@@ret
+		jz	.ret
 		call	ax
-@@ret:
+.ret:
 		ret
-@@left_exp:
+.left_exp:
 		dec	bx
-		jns	@@exp
+		jns	.exp
 		mov	bx,cx
 		dec	bx
-		jmp	@@exp
-@@right_exp:
+		jmp	.exp
+.right_exp:
 		inc	bx
 		cmp	bx,cx
-		jb	@@exp
+		jb	.exp
 		xor	bx,bx
-@@exp:
+.exp:
 		call	update_hmenu
-		jmp	@@enter
+		jmp	.enter
 ;=============================================================================
 ; exec_sub_menu
 ;-----------------------------------------------------------------------------
@@ -184,18 +184,18 @@ exec_sub_menu:
 		shl	bx,1
 		mov	ax,[bx+si]	;DISABLED, SUB_MENU, etc.
 		test	al,DISABLED
-		jz	@@enabled
+		jz	.enabled
 		mov	ax,1
-		jmp	@@quit_2
-@@enabled:
+		jmp	.quit_2
+.enabled:
 		and	ax,~DISABLED
 		or	ax,ax
-		jnz	@@sub_menu	;Submenu if bit 0 is set
+		jnz	.sub_menu	;Submenu if bit 0 is set
 		mov	ax,[bx+si+2]	;Otherwise -- procedure
 ;		call	word ptr [bx+si+2]
 ;		xor	ax,ax
-		jmp	@@quit_2
-@@sub_menu:
+		jmp	.quit_2
+.sub_menu:
 		mov	si,[bx+si+2]	;Ptr to submenu structure
 		lodsw
 		mov	[sub_coord],ax	;Coordinates of top left corner
@@ -210,7 +210,7 @@ exec_sub_menu:
 		pop	si
 
 		mov	[sub_struc],si
-@@next_menu:
+.next_menu:
 		lodsw
 		mov	cx,ax		;Number of items
 		lodsw
@@ -228,7 +228,7 @@ exec_sub_menu:
 		mov	si,[sub_struc]
 		mov	[si+2],ah
 		cmp	al,-3		;???
-		jae	@@quit_a	;???
+		jae	.quit_a	;???
 
 		push	si
 		mov	bl,al
@@ -237,11 +237,11 @@ exec_sub_menu:
 		call	exec_sub_menu
 		pop	si
 		cmp	ax,1
-		je	@@next_menu
+		je	.next_menu
 
-@@quit:
+.quit:
 		call	close_window
-@@quit_2:
+.quit_2:
 		pop	word [sub_coord]
 		pop	word [sub_struc]
 		pop	si
@@ -249,10 +249,10 @@ exec_sub_menu:
 		pop	cx
 		pop	bx
 		ret
-@@quit_a:
+.quit_a:
 		neg	al
 		mov	ah,0
-		jmp	@@quit
+		jmp	.quit
 ;=============================================================================
 ; update_hmenu
 ;-----------------------------------------------------------------------------
@@ -274,33 +274,33 @@ update_hmenu:
 		mov	ah,atHMenuNorm
 		mov	al,' '
 		stosw
-@@next_point:
+.next_point:
 		mov	ah,atHMenuNorm
 		mov	dh,atHMenuNormHot
 		cmp	bx,bp
-		jne	@@1
+		jne	.1
 		mov	ah,atHMenuSel
 		mov	dh,atHMenuSelHot
-@@1:
+.1:
 		mov	al,' '
 		stosw
-@@next:
+.next:
 		lodsb
 		cmp	al,0
-		je	@@end
+		je	.end
 		cmp	al,'~'
-		je	@@sw
+		je	.sw
 		stosw
-		jmp	@@next
-@@sw:
+		jmp	.next
+.sw:
 		xchg	ah,dh
-		jmp	@@next
-@@end:
+		jmp	.next
+.end:
 		mov	al,' '
 		stosw
 		inc	bp
 		cmp	bp,cx
-		jb	@@next_point
+		jb	.next_point
 
 		mov	cx,160		;!!!
 		sub	cx,di
@@ -418,40 +418,40 @@ read_line:
 
 		xor	bx,bx
 		xor	dx,dx
-		jmp	@@next_1
-@@next:
+		jmp	.next_1
+.next:
 		mov	byte [string_changed],0
-@@next_1:
+.next_1:
 		call	update_string
-@@read:
+.read:
 		call	read_key
 		call	check_exit_read
-		jc	@@1
-		jmp	@@ignore
-@@1:
+		jc	.1
+		jmp	.ignore
+.1:
 		cmp	ax,kbRight
-		je	@@right
+		je	.right
 		cmp	ax,kbLeft
-		je	@@left
+		je	.left
 		cmp	ax,kbHome
-		jne	@@5
-		jmp	@@home
-@@5:
+		jne	.5
+		jmp	.home
+.5:
 		cmp	ax,kbEnd
-		jne	@@4
-		jmp	@@end
-@@4:
+		jne	.4
+		jmp	.end
+.4:
 		cmp	ax,kbDel
-		je	@@delete
+		je	.delete
 		cmp	ax,kbBackSpace
-		je	@@backspace
+		je	.backspace
 		cmp	bl,[max_str_length]		;byte!
-		jae	@@next
+		jae	.next
 		call	[test_char]
-		jc	@@read
+		jc	.read
 		cmp	byte [string_changed],1
-		je	@@clear
-@@cleared:
+		je	.clear
+.cleared:
 		push	cx
 		mov	cx,[max_str_length]
 		mov	di,[str_buffer]
@@ -459,56 +459,56 @@ read_line:
 		dec	di
 		lea	si,[di-1]
 		sub	cx,bx
-		jz	@@3
+		jz	.3
 		dec	cx
 		std
 	rep	movsb
-@@3:
+.3:
 		cld
 		mov	si,[str_buffer]
 ;		add	si,bx
 		mov	[si+bx],al
 		pop	cx
 		cmp	cx,[max_str_length]
-		jae	@@right
+		jae	.right
 		inc	cx
-@@right:
+.right:
 		cmp	bl,cl
-		jne	@@2
-@@loc_read:
-		jmp	@@read
-@@2:
+		jne	.2
+.loc_read:
+		jmp	.read
+.2:
 		inc	bx
 		mov	ax,bx
 		sub	ax,dx
 		cmp	ax,[str_length]
-		jbe	@@loc_next
+		jbe	.loc_next
 		inc	dx
-		jmp	@@next
-@@clear:
+		jmp	.next
+.clear:
 		mov	si,[str_buffer]
 		mov	byte [si],0
 		xor	cx,cx
 		xor	bx,bx
-		jmp	@@cleared
-@@left:
+		jmp	.cleared
+.left:
 		or	bl,bl
-		je	@@loc_next
+		je	.loc_next
 		dec	bx
 		cmp	bx,dx
-		jae	@@loc_next
+		jae	.loc_next
 		mov	dx,bx
-@@loc_next:
-		jmp	@@next
-@@backspace:
+.loc_next:
+		jmp	.next
+.backspace:
 		or	bx,bx
-		je	@@loc_read
+		je	.loc_read
 		dec	bx
-@@delete:
+.delete:
 		or	cx,cx
-		je	@@loc_read
+		je	.loc_read
 		cmp	bx,cx
-		jae	@@loc_read
+		jae	.loc_read
 		mov	di,[str_buffer]
 		add	di,bx
 		lea	si,[di+1]
@@ -522,31 +522,31 @@ read_line:
 		pop	cx
 		dec	cx
 		or	dx,dx
-		jz	@@loc_next
+		jz	.loc_next
 		mov	ax,cx
 		sub	ax,dx
 		cmp	ax,[str_length]
-		jae	@@loc_next
+		jae	.loc_next
 		dec	dx
-		jmp	@@next
-@@home:
+		jmp	.next
+.home:
 		xor	bx,bx
 		xor	dx,dx
-		jmp	@@next
-@@end:
+		jmp	.next
+.end:
 		mov	bx,cx
 		cmp	bx,[str_length]
-		jbe	@@loc_next
+		jbe	.loc_next
 		mov	dx,bx
 		sub	dx,[str_length]
-		jmp	@@next
+		jmp	.next
 
-@@ignore:
-;		mov	@@Result,0
-;		jmp	@@Quit
-@@enter:
+.ignore:
+;		mov	.Result,0
+;		jmp	.Quit
+.enter:
 		mov	[read_line_result],ax
-@@quit:
+.quit:
 		mov	cx,[read_line_cur]
 		call	set_cursor
 		mov	dx,[read_line_cur_c]
@@ -584,28 +584,28 @@ update_string:
 		mov	al,' '
 		stosw
 		cmp	byte [string_changed],0
-		je	@@not_sel_1
+		je	.not_sel_1
 		mov	ah,[read_line_sel_attr]
-@@not_sel_1:
-		jcxz	@@skip
+.not_sel_1:
+		jcxz	.skip
 		cmp	cx,[str_length]
-		jbe	@@next
+		jbe	.next
 		mov	cx,[str_length]
-@@next:
+.next:
 		lodsb
 		stosw
 		inc	dx
-		loop	@@next
-@@skip:
+		loop	.next
+.skip:
 		mov	ah,[read_line_attr]
 		sub	dx,[str_length]
-		ja	@@quit
+		ja	.quit
 		mov	cx,dx
 		neg	cx
 		inc	cx
 		mov	al,' '
 	rep	stosw
-@@quit:
+.quit:
 		call	popr
 		ret
 ;=============================================================================
@@ -620,18 +620,18 @@ update_string:
 ;
 default_test_char:
 ;		cmp	al,0
-;		je	@@1
+;		je	.1
 ;		clc
 ;		ret
-;@@1:
+;.1:
 ;		stc
 ;		ret
 
 		cmp	al,' '
-		jb	@@exit
+		jb	.exit
 		cmp	ax,kbAltAlone
 		cmc
-@@exit:
+.exit:
 		ret
 ;=============================================================================
 ; check_exit_read
@@ -649,15 +649,15 @@ check_exit_read:
 		push	si
 		mov	bx,ax
 		mov	si,[read_exit_keys]
-@@next:
+.next:
 		lodsw
 		cmp	ax,bx
-		je	@@quit
+		je	.quit
 		or	ax,ax
-		jnz	@@next
-@@end:
+		jnz	.next
+.end:
 		stc
-@@quit:
+.quit:
 		pop	si
 		pop	bx
 		pop	ax
@@ -695,16 +695,16 @@ vert_menu:
 		mov	word [test_key],vm_test_key
 		call	key_loop
 		cmp	ax,kbEsc
-		je	@@cancel
+		je	.cancel
 		cmp	ax,kbLeft
-		je	@@left
+		je	.left
 		cmp	ax,kbRight
-		je	@@right
+		je	.right
 		mov	al,dl
-		jmp	@@quit
-@@cancel:
+		jmp	.quit
+.cancel:
 		mov	al,-1
-@@quit:
+.quit:
 		mov	[vert_menu_result],al
 		mov	[vert_menu_result+1],dl
 		pop	word [test_key]
@@ -712,12 +712,12 @@ vert_menu:
 		call	popr
 		mov	ax,[vert_menu_result]
 		ret
-@@left:
+.left:
 		mov	al,-2
-		jmp	@@quit
-@@right:
+		jmp	.quit
+.right:
 		mov	al,-3
-		jmp	@@quit
+		jmp	.quit
 
 vert_menu_down:
 		inc	dl
@@ -749,11 +749,11 @@ vert_menu_end:
 vm_test_key:
 		mov	al,[cur_test_code]		;byte!
 		call	find_menu_letter
-		jc	@@quit
+		jc	.quit
 		mov	dl,al
 		call	write_items
 		mov	ax,kbEnter
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; write_items
@@ -777,15 +777,15 @@ write_items:
 		push	si
 		push	bp
 		mov	al,0
-@@next:
+.next:
 		push	cx
-@@next_str:
+.next_str:
 		mov	di,bp
 		mov	ah,bl
 		cmp	byte [si],0
-		je	@@separator
+		je	.separator
 		cmp	word [point_options],0
-		je	@@no_opt
+		je	.no_opt
 		push	bx
 		mov	bl,al
 		mov	bh,0
@@ -794,26 +794,26 @@ write_items:
 		add	bx,[point_options]
 		test	byte [bx],DISABLED
 		pop	bx
-		jz	@@no_opt
+		jz	.no_opt
 		mov	ch,atMenuNormDis
 		mov	ah,atMenuNormDis
 		cmp	al,dl
-		jne	@@write
+		jne	.write
 		mov	ch,atMenuSelDis
 		mov	ah,atMenuSelDis
-		jmp	@@write
-@@no_opt:
+		jmp	.write
+.no_opt:
 		mov	ch,atMenuNormHot
 		cmp	al,dl
-		jne	@@write
+		jne	.write
 		mov	ah,bh
 		mov	ch,atMenuSelHot
-@@write:
+.write:
 		call	write_point
 		add	bp,SCR_COLS*2		;160
 		inc	ax
 		pop	cx
-		loop	@@next
+		loop	.next
 
 		pop	bp
 		pop	si
@@ -821,7 +821,7 @@ write_items:
 		pop	ax
 		ret
 
-@@separator:
+.separator:
 ;-----------------------------------------------------------------------------
 ; Write separator.
 ;  Borland-style:	Norton-style:
@@ -854,7 +854,7 @@ write_items:
 %endif	;CONFIG_BORLAND_MENU
 		add	bp,SCR_COLS*2
 		pop	ax
-		jmp	@@next_str
+		jmp	.next_str
 ;=============================================================================
 ; write_point
 ;-----------------------------------------------------------------------------
@@ -880,15 +880,15 @@ write_point:
 		mov	ch,0
 		mov	al,' '
 		stosw
-@@next:
+.next:
 		lodsb
 		cmp	al,0
-		je	@@adjust
+		je	.adjust
 		cmp	al,'~'
-		je	@@sw
+		je	.sw
 ;-----------------------------------------------------------------------------
 		cmp	al,'`'
-		jne	@@stosw
+		jne	.stosw
 		push	bx
 		mov	bx,cx
 		call	point_len
@@ -902,20 +902,20 @@ write_point:
 	rep	stosw
 		pop	cx
 		pop	bx
-@@stosw:
+.stosw:
 ;-----------------------------------------------------------------------------
 		stosw
 		dec	cx
-		jmp	@@next
-@@sw:
+		jmp	.next
+.sw:
 		xchg	ah,bl
-		jmp	@@next
-@@adjust:
+		jmp	.next
+.adjust:
 		cmp	cx,0
-		jle	@@quit
+		jle	.quit
 		mov	al,' '
 	rep	stosw
-@@quit:
+.quit:
 		pop	cx
 		pop	bx
 		pop	ax
@@ -940,29 +940,29 @@ find_menu_letter:
 		call	upcase
 		mov	ah,al
 		xor	bx,bx
-@@next:
+.next:
 		lodsb
 		cmp	al,0
-		je	@@end_point
+		je	.end_point
 		cmp	al,'~'
-		jne	@@next
+		jne	.next
 		lodsb
 		inc	si
 		call	upcase
 		cmp	al,ah
-		jne	@@next
+		jne	.next
 		mov	ax,bx
-		jmp	@@quit
-@@end_point:
+		jmp	.quit
+.end_point:
 		cmp	byte [si],0
-		jne	@@1
+		jne	.1
 		inc	si
-@@1:
+.1:
 		inc	bx
 		cmp	bx,cx
-		jb	@@next
+		jb	.next
 		stc
-@@quit:
+.quit:
 		pop	si
 		pop	bx
 		ret
@@ -1027,7 +1027,7 @@ exec_message:
 		call	pushr
 
 		cmp	byte [exec_msg_type],1
-		ja	@@skip_open
+		ja	.skip_open
 
 		call	get_cursor
 		mov	[exec_message_cx],cx
@@ -1039,10 +1039,10 @@ exec_message:
 		mov	al,39
 		sub	al,cl		; al=message X
 		cmp	cl,10
-		jae	@@1
+		jae	.1
 		mov	cl,10
 
-@@1:
+.1:
 		add	cl,2
 		mov	bl,39
 		sub	bl,cl
@@ -1065,22 +1065,22 @@ exec_message:
 		mov	si,bp
 		call	write_string
 
-@@skip_open:
+.skip_open:
 		cmp	byte [exec_msg_type],1
-		je	@@skip_close
+		je	.skip_close
 
 		cmp	byte [exec_msg_type],2
-		je	@@skip_read_key
+		je	.skip_read_key
 
 		call	flush_key
 		call	read_key
 
-@@skip_read_key:
+.skip_read_key:
 		call	close_window
 		mov	cx,[exec_message_cx]
 		call	set_cursor
 
-@@skip_close:
+.skip_close:
 		call	popr
 		ret
 ;=============================================================================
@@ -1129,12 +1129,12 @@ open_window_2:
 		mov	bp,cx
 		push	ax
 		or	al,al
-		jz	@@skip_save_window
+		jz	.skip_save_window
 		push	dx
 		add	dx,0102h
 		call	save_window
 		pop	dx
-@@skip_save_window:
+.skip_save_window:
 		mov	ax,bx
 		push	bp
 		call	get_addr
@@ -1161,12 +1161,12 @@ open_window_2:
 		lodsw
 		add	bl,al
 		mov	cl,al
-		jcxz	@@skip_2
-@@next_2:
+		jcxz	.skip_2
+.next_2:
 		lodsb
 		stosw
-		loop	@@next_2
-@@skip_2:
+		loop	.next_2
+.skip_2:
 		pop	ax
 		pop	cx
 		push	cx
@@ -1177,9 +1177,9 @@ open_window_2:
 		mov	al,[ds:bp+2]	;'»'
 		stosw
 		inc	bh
-@@next:
+.next:
 		cmp	bh,dh
-		je	@@end_loop
+		je	.end_loop
 		inc	bh
 		add	word [owb_bp],SCR_COLS*2	;160
 		mov	di,[owb_bp]
@@ -1197,8 +1197,8 @@ open_window_2:
 		inc	di
 		stosb
 
-		jmp	@@next
-@@end_loop:
+		jmp	.next
+.end_loop:
 		add	word [owb_bp],SCR_COLS*2	;160
 		mov	di,[owb_bp]
 		mov	al,[ds:bp+5]	;'È'
@@ -1220,10 +1220,10 @@ open_window_2:
 ;		mov	al,atShadow	;AL == atShadow...
 		inc	cx
 		inc	cx
-@@next_1:
+.next_1:
 		stosb
 		inc	di
-		loop	@@next_1
+		loop	.next_1
 
 		call	popr
 		ret
@@ -1253,7 +1253,7 @@ save_window:
 		mov	ds,[video_seg]
 		push	bx		;save left/top
 		push	dx		;save right/bottom
-@@next:
+.next:
 		mov	si,bp
 		push	cx
 	rep	movsw
@@ -1261,7 +1261,7 @@ save_window:
 		add	bp,SCR_COLS*2
 		inc	bh
 		cmp	bh,dh
-		jbe	@@next
+		jbe	.next
 
 		pop	ax		;buffer: °°°°°°°°rblt....
 		stosw			;buf_pos: -----------^
@@ -1300,7 +1300,7 @@ restore_window:
 		mov	es,[video_seg]
 		std			;get_addr set CF
 
-@@next:
+.next:
 		mov	di,bp
 		push	cx
 	rep	movsw
@@ -1308,7 +1308,7 @@ restore_window:
 		sub	bp,SCR_COLS*2
 		inc	bh
 		cmp	bh,dh
-		jbe	@@next
+		jbe	.next
 
 		cld
 		lodsw
@@ -1334,13 +1334,13 @@ write_string:
 		call	get_addr
 		mov	es,[video_seg]
 		mov	ah,bh
-@@next:
+.next:
 		lodsb
 		cmp	al,0
-		je	@@quit
+		je	.quit
 		stosw
-		jmp	@@next
-@@quit:
+		jmp	.next
+.quit:
 		pop	es
 		pop	bp
 		pop	di
@@ -1370,7 +1370,7 @@ fill_byte:
 		push	cx
 		mov	ah,bh
 		mov	cl,4
-@@next:
+.next:
 		push	ax
 		shr	al,cl
 		and	al,0fh
@@ -1380,7 +1380,7 @@ fill_byte:
 		stosw
 		pop	ax
 		sub	cl,4
-		jz	@@next
+		jz	.next
 
 		pop	cx
 		pop	ax

@@ -127,6 +127,12 @@ removed.
 
 Step 4. Change the source code so that it builds with mininasm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The goal is to build the insight.com identical to the release.
+Local labels with prefix `@@' were renamed to prefix `.'. This made it
+possible to drop the `-t' command-line switch of NASM, which mininasm
+doesn't support. A small Perl scipt was used to automate this:
+
+  $ perl -pi -e 's/[@][@]/[.]/g' *.asm *.inc
+
+The remaining goal is to build the insight.com identical to the release.
 
 __END__

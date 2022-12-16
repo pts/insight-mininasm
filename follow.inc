@@ -29,12 +29,12 @@
 dump_reference:
 		call	unasm_cur_line
 		cmp	byte [memory_flag],0
-		je	@@exit
+		je	.exit
 		call	calc_mem_address
 		push	si
 		push	dx
 		call	update_dump_window
-@@exit:
+.exit:
 		clc
 		ret
 ;=============================================================================
@@ -129,7 +129,7 @@ update_dump_window:
 		mov	bx,update_dump_window-dump_csip
 		sub	ax,bx
 		cmp	ax,dump_esdi
-		jb	@@set_dump
+		jb	.set_dump
 		mov	[data_watch_temp],ax
 		sub	ax,dump_esdi
 		div	bl
@@ -138,21 +138,21 @@ update_dump_window:
 		add	ax,data_watch_labels
 		mov	[data_watch_label],ax
 
-@@set_dump:
+.set_dump:
 		mov	ax,[new_dump_offs]
 		mov	dx,[new_dump_seg]
 
 ;		cmp     dump_offs,ax
-;		jne	@@UpdateDump
+;		jne	.UpdateDump
 ;		cmp	dump_seg,dx
-;		je	@@Exit
+;		je	.Exit
 
-@@update_dump:
+.update_dump:
 		mov	[dump_offs],ax
 		mov	[dump_seg],dx
 		call	update_dump
 
-@@exit:
+.exit:
 		call	popr
 		clc
 		ret
@@ -197,7 +197,7 @@ set_code_mark:
 		call	find_code_mark
 		or	[code_mark_exist],ax
 		call	check_shift
-		jnz	@@set_data_mark
+		jnz	.set_data_mark
 
 		mov	ax,[cur_line]
 		stosw
@@ -209,7 +209,7 @@ set_code_mark:
 		stosw
 		jmp	update_commands
 
-@@set_data_mark:
+.set_data_mark:
 		mov	ax,-1
 		stosw
 		mov	ax,[dump_offs]
@@ -307,7 +307,7 @@ jump_beep_return:
 
 		lodsw
 		cmp	ax,0ffffh
-		je	@@set_dump_pos
+		je	.set_dump_pos
 
 		call	push_unasm_pos
 
@@ -318,7 +318,7 @@ jump_beep_return:
 		mov	[unasm_seg],ax
 		jmp	update_commands
 
-@@set_dump_pos:
+.set_dump_pos:
 		lodsw
 		mov	[dump_offs],ax
 		lodsw
@@ -385,7 +385,7 @@ push_unasm_pos:
 		push	si
 		mov	si,[follow_stack_ptr]
 		cmp	si,follow_stack_btm
-		jbe	@@stack_full
+		jbe	.stack_full
 		sub	si,2
 		mov	ax,[unasm_seg]
 		mov	[si],ax
@@ -396,14 +396,14 @@ push_unasm_pos:
 		mov	ax,[cur_line]
 		mov	[si],ax
 		mov	[follow_stack_ptr],si
-@@exit:
+.exit:
 		pop	si
 		pop	ax
 		ret
 
-@@stack_full:
+.stack_full:
 		call	beep
-		jmp	@@exit
+		jmp	.exit
 ;=============================================================================
 ; check_shared_area
 ;-----------------------------------------------------------------------------
@@ -418,22 +418,22 @@ _check_shared_area:
 
 ..@check_code_mark:
 		cmp	si,code_mark_buff
-		jbe	@@check_stack
+		jbe	.check_stack
 		mov	word [code_mark_exist],0
 		mov	si,code_mark_msg
 		call	error_message
-		jmp	@@exit_2
+		jmp	.exit_2
 
-@@check_stack:
+.check_stack:
 		cmp	si,[follow_stack_ptr]
-		jbe	@@exit_1
+		jbe	.exit_1
 		mov	si,follow_stack_msg
 		call	message_box
 
-@@exit_2:
+.exit_2:
 		mov	word [follow_stack_ptr],follow_stack
 
-@@exit_1:
+.exit_1:
 		pop	si
 		ret
 ;=============================================================================
@@ -444,11 +444,11 @@ unasm_cur_line:
 		push	bp
 		mov	si,[cur_ip]
 		xor	bp,bp
-@@next_cpu_line:
+.next_cpu_line:
 		call	unassemble
 		inc	bp
 		cmp	bp,[cur_line]
-		jbe	@@next_cpu_line
+		jbe	.next_cpu_line
 		pop	bp
 		pop	si
 		ret
@@ -458,42 +458,42 @@ unasm_cur_line:
 find_first_byte:
 
 		xor	cx,cx
-@@next_byte:
+.next_byte:
 	es	lodsb
 
 		mov	dl,RF_PREFIX
 		cmp	al,26h
-		je	@@next
+		je	.next
 		cmp	al,36h
-		je	@@next
+		je	.next
 		cmp	al,2Eh
-		je	@@next
+		je	.next
 		cmp	al,3Eh
-		je	@@next
+		je	.next
 
 		cmp	al,64h
-		je	@@check_cpu
+		je	.check_cpu
 		cmp	al,65h
-		je	@@check_cpu
+		je	.check_cpu
 		cmp	al,67h
-		je	@@check_cpu
+		je	.check_cpu
 		cmp	al,66h
-		jne	@@normal_exit
+		jne	.normal_exit
 		mov	dl,RF_ADDRESS_32
 
-@@check_cpu:
+.check_cpu:
 		cmp	byte [cpu_type],a386
-		jb	@@exit
+		jb	.exit
 		or	[ref_flags],dl
 
-@@next:
-		loop	@@next_byte
+.next:
+		loop	.next_byte
 		stc
 		ret
 
-@@normal_exit:
+.normal_exit:
 		clc
-@@exit:
+.exit:
 		ret
 ;=============================================================================
 ; get_ref_addresses
@@ -505,41 +505,41 @@ get_ref_addresses:
 		mov	si,bx
 		mov	bp,bx
 		mov	es,[unasm_seg]
-		mov	di,@@follow_table - 2
+		mov	di,.follow_table - 2
 
 		cld
 
-@@command:
+.command:
 		call	find_first_byte
-		jc	@@jump_to_error_exit
+		jc	.jump_to_error_exit
 
 		cmp	al,0ffh			;call/jmp mem/reg
-		je	@@ref_jump
+		je	.ref_jump
 
 		test	byte [ref_flags],RF_PREFIX
-		jnz	@@error_exit
+		jnz	.error_exit
 
 		cmp	al,70h
-		jb	@@next
+		jb	.next
 		cmp	al,7fh
-		jbe	@@short_condit_jump
+		jbe	.short_condit_jump
 
-@@next:
+.next:
 		scasw				;add	di,2
 		cmp	byte [di],0
-		je	@@error_exit
+		je	.error_exit
 		cmp	byte [di],al
-		jne	@@next
+		jne	.next
 		mov	bl,[di+1]
 		mov	bh,0
-		lea	bx,[@@first_jump+bx]
+		lea	bx,[.first_jump+bx]
 		jmp	bx
 
-@@first_jump:
+.first_jump:
 
-@@ref_jump:
+.ref_jump:
 		test	byte [ref_flags],RF_32
-		jnz	@@error_exit
+		jnz	.error_exit
 	es	lodsb
 		mov	bl,al
 		mov	cl,3
@@ -548,117 +548,117 @@ get_ref_addresses:
 		and	al,111b
 		cmp	al,010b
 
-@@jump_to_error_exit:
-		jb	@@error_exit
+.jump_to_error_exit:
+		jb	.error_exit
 		cmp	al,101b
-		ja	@@error_exit
+		ja	.error_exit
 		cmp	al,011b
-		ja	@@ref_call
-		mov	di,@@last_jump
+		ja	.ref_call
+		mov	di,.last_jump
 
-@@ref_call:
+.ref_call:
 		shr	ah,cl
 		cmp	ah,11b
-		je	@@reg_ref
+		je	.reg_ref
 		call	calc_mem_address
 		mov	es,dx
 		cmp	byte [memory_flag],3
-		je	@@far_jump
+		je	.far_jump
 	es	lodsw
-		jmp	@@set_cur_seg
+		jmp	.set_cur_seg
 
-@@reg_ref:
+.reg_ref:
 		and	bx,111b
 		shl	bx,1
 		mov	bx,[reg_offs_table+bx]
 		mov	ax,[bx]
-		jmp	@@set_cur_seg
+		jmp	.set_cur_seg
 
-@@condit_jump:
+.condit_jump:
 		cmp	byte [cpu_type],a386
-		jb	@@error_exit
+		jb	.error_exit
 	es	lodsb
 		cmp	al,80h
-		jb	@@error_exit
+		jb	.error_exit
 		cmp	al,8Fh
-		jbe	@@near_condit_jump
+		jbe	.near_condit_jump
 
-@@error_exit:
+.error_exit:
 		cmp	bp,[cur_line_ip]
-		jne	@@exit
+		jne	.exit
 		and	byte [ref_flags],~RF_FOLLOW
 
-@@exit:
+.exit:
 		call	popr
 		ret
 
-@@short_condit_jump:
-		call	@@set_condition
+.short_condit_jump:
+		call	.set_condition
 
-@@short_jump:
+.short_jump:
 		xor	ax,ax
 	es	lodsb
 		cbw
-		jmp	@@near_jump_
+		jmp	.near_jump_
 
-@@near_return:
+.near_return:
 		mov	si,[cpu_regs+REG_SP]
 		mov	es,[cpu_regs+REG_SS]
-		jmp	@@near_jump
+		jmp	.near_jump
 
-@@far_return:
+.far_return:
 		mov	si,[cpu_regs+REG_SP]
 		mov	es,[cpu_regs+REG_SS]
-		jmp	@@far_jump
+		jmp	.far_jump
 
-@@int3:
+.int3:
 		mov	ax,3*4
-		jmp	@@get_vector
+		jmp	.get_vector
 
-@@into:
+.into:
 		mov	ax,4*4
-		jmp	@@get_vector
+		jmp	.get_vector
 
-@@int:
+.int:
 		xor	ax,ax
 	es	lodsb
 		shl	ax,1
 		shl	ax,1
 
-@@get_vector:
+.get_vector:
 		xchg	ax,si
 		xor	ax,ax
 		mov	es,ax
-		jmp	@@far_jump
+		jmp	.far_jump
 
-@@near_condit_jump:
-		call	@@set_condition
+.near_condit_jump:
+		call	.set_condition
 
-@@near_jump:
+.near_jump:
 	es	lodsw
 
-@@near_jump_:
+.near_jump_:
 		add	ax,si
 
-@@set_cur_seg:
+.set_cur_seg:
 		mov	dx,[unasm_seg]
-		jmp	@@normal_exit
+		jmp	.normal_exit
 
-@@far_jump:
+.far_jump:
 	es	lodsw
 		xchg	ax,dx
 	es	lodsw
 		xchg	ax,dx
 
-@@normal_exit:
+.normal_exit:
 		cmp	bp,[cur_line_ip]
-		jne	@@skip
+		jne	.skip
 		mov	[follow_seg],dx
 		mov	[follow_offs],ax
 		or	byte [ref_flags],RF_FOLLOW
-@@skip:
-		cmp	di,@@last_jump
-		jae	@@exit
+.skip:
+		cmp	di,.last_jump
+		jae	.exit
 		or	byte [ref_flags],RF_JUMP
 		call	adjust_address
 		xchg	ax,bx
@@ -667,34 +667,34 @@ get_ref_addresses:
 		mov	ax,bp
 		call	adjust_address
 		cmp	dx,cx
-		jb	@@exit
-		ja	@@set_dir
+		jb	.exit
+		ja	.set_dir
 		cmp	ax,bx
-		jb	@@jump_to_exit
+		jb	.jump_to_exit
 
-@@set_dir:
+.set_dir:
 		or	byte [ref_flags],RF_BACKWARD
 
-@@jump_to_exit:
-		jmp	@@exit
+.jump_to_exit:
+		jmp	.exit
 
-@@loop_jump:
+.loop_jump:
 		sub	al,0e0h-16
 		mov	ah,0
-		call	@@set_condition_
-		jmp	@@short_jump
+		call	.set_condition_
+		jmp	.short_jump
 
-@@set_condition:
+.set_condition:
 		and	ax,0fh
-@@set_condition_:
+.set_condition_:
 		or	byte [ref_flags],RF_CONDITION
 		mov	dx,ax
 		xchg	ax,bx
-		mov	bl,[@@condition_table+bx]
+		mov	bl,[.condition_table+bx]
 		mov	bh,0
-		add	bx,@@jx
+		add	bx,.jx
 
-@@check_flag:
+.check_flag:
 		mov	cx,[cpu_regs+REG_FL]
 		and	cx,0000100011010101b
 		push	cx
@@ -703,198 +703,198 @@ get_ref_addresses:
 		mov	ax,dx
 		ret
 
-@@set_result:
+.set_result:
 		or	byte [ref_flags],RF_TRUE
 
-@@return:
+.return:
 		ret
 
-@@jx:
-@@loopne:
-		mov	bx,@@jnz
-		jmp	@@check_cx
+.jx:
+.loopne:
+		mov	bx,.jnz
+		jmp	.check_cx
 
-@@loope:
-		mov	bx,@@jz
-		jmp	@@check_cx
+.loope:
+		mov	bx,.jz
+		jmp	.check_cx
 
-@@loop:
-		mov	bx,@@set_result
+.loop:
+		mov	bx,.set_result
 
-@@check_cx:
+.check_cx:
 		test	byte [ref_flags],RF_OPERAND_32
-		jnz	@@2
+		jnz	.2
 		cmp	word [cpu_regs+REG_CX],1
-		jmp	@@1
+		jmp	.1
 
-@@2:
+.2:
 	cpu	386
 		cmp	dword [cpu_regs+REG_CX],1
 	cpu	8086
-@@1:
-		je	@@return
-		jmp	@@check_flag
+.1:
+		je	.return
+		jmp	.check_flag
 
 
 
-@@jcxz:
+.jcxz:
 		test	byte [ref_flags],RF_OPERAND_32
-		jnz	@@4
+		jnz	.4
 		cmp	word [cpu_regs+REG_CX],0
-		jmp	@@3
+		jmp	.3
 
-@@4:
+.4:
 	cpu	386
 		cmp	dword [cpu_regs+REG_CX],0
 	cpu	8086
-@@3:
-		je	@@set_result
+.3:
+		je	.set_result
 		ret
 
-@@jo:
-		jo	@@set_result
+.jo:
+		jo	.set_result
 		ret
 
-@@jno:
-		jno	@@set_result
+.jno:
+		jno	.set_result
 		ret
 
-@@jb:
-		jb	@@set_result
+.jb:
+		jb	.set_result
 		ret
 
-@@jnb:
-		jnb	@@set_result
+.jnb:
+		jnb	.set_result
 		ret
 
-@@jz:
-		jz	@@set_result
+.jz:
+		jz	.set_result
 		ret
 
-@@jnz:
-		jnz	@@set_result
+.jnz:
+		jnz	.set_result
 		ret
 
-@@jna:
-		jna	@@set_result
+.jna:
+		jna	.set_result
 		ret
 
-@@ja:
-		ja	@@set_result
+.ja:
+		ja	.set_result
 		ret
 
-@@js:
-		js	@@set_result
+.js:
+		js	.set_result
 		ret
 
-@@jns:
-		jns	@@set_result
+.jns:
+		jns	.set_result
 		ret
 
-@@jp:
-		jp	@@set_result
+.jp:
+		jp	.set_result
 		ret
 
-@@jnp:
-		jnp	@@set_result
+.jnp:
+		jnp	.set_result
 		ret
 
-@@jl:
-		jl	@@set_result
+.jl:
+		jl	.set_result
 		ret
 
-@@jnl:
-		jnl	@@set_result
+.jnl:
+		jnl	.set_result
 		ret
 
-@@jng:
-		jng	@@set_result
+.jng:
+		jng	.set_result
 		ret
 
-@@jg:
-		jg	@@set_result
+.jg:
+		jg	.set_result
 		ret
 
 
-@@follow_table:
+.follow_table:
 		db	0fh				;286+
-		db	@@condit_jump	- @@first_jump
+		db	.condit_jump	- .first_jump
 
 		db	0e0h				;loopne/loopnz
-		db	@@loop_jump	- @@first_jump
+		db	.loop_jump	- .first_jump
 
 		db	0e1h				;loope/loopz
-		db	@@loop_jump	- @@first_jump
+		db	.loop_jump	- .first_jump
 
 		db	0e2h				;loop
-		db	@@loop_jump	- @@first_jump
+		db	.loop_jump	- .first_jump
 
 		db	0e3h				;jcxz
-		db	@@loop_jump	- @@first_jump
+		db	.loop_jump	- .first_jump
 
 		db	0e9h				;jmp near
-		db	@@near_jump	- @@first_jump
+		db	.near_jump	- .first_jump
 
 		db	0eah				;jmp far
-		db	@@far_jump	- @@first_jump
+		db	.far_jump	- .first_jump
 
 		db	0ebh				;jmp short
-		db	@@short_jump	- @@first_jump
+		db	.short_jump	- .first_jump
 
-@@last_jump:
+.last_jump:
 		db	9ah				;call far
-		db	@@far_jump	- @@first_jump
+		db	.far_jump	- .first_jump
 
 		db	0e8h				;call near
-		db	@@near_jump	- @@first_jump
+		db	.near_jump	- .first_jump
 
 		db	0c2h				;ret near
-		db	@@near_return	- @@first_jump
+		db	.near_return	- .first_jump
 
 		db	0c3h				;ret near
-		db	@@near_return	- @@first_jump
+		db	.near_return	- .first_jump
 
 		db	0cah				;ret far
-		db	@@far_return	- @@first_jump
+		db	.far_return	- .first_jump
 
 		db	0cbh				;ret far
-		db	@@far_return	- @@first_jump
+		db	.far_return	- .first_jump
 
 		db	0cch				;int 3
-		db	@@int3		- @@first_jump
+		db	.int3		- .first_jump
 
 		db	0cdh				;int
-		db	@@int		- @@first_jump
+		db	.int		- .first_jump
 
 		db	0ceh				;into
-		db	@@into		- @@first_jump
+		db	.into		- .first_jump
 
 		db	0cfh				;iret
-		db	@@far_return	- @@first_jump
+		db	.far_return	- .first_jump
 
 		db	0
 
-@@condition_table:
-		db	@@jo	- @@jx		;jo
-		db	@@jno	- @@jx		;jno
-		db	@@jb	- @@jx		;jb/jnae
-		db	@@jnb	- @@jx		;jae/jnb
-		db	@@jz	- @@jx		;je/jz
-		db	@@jnz	- @@jx		;jne/jnz
-		db	@@jna	- @@jx		;jbe/jna
-		db	@@ja	- @@jx		;ja/jnbe
-		db	@@js	- @@jx		;js
-		db	@@jns	- @@jx		;jns
-		db	@@jp	- @@jx		;jp/jpe
-		db	@@jnp	- @@jx		;jnp/jpo
-		db	@@jl	- @@jx		;jl/jnge
-		db	@@jnl	- @@jx		;jge/jnl
-		db	@@jng	- @@jx		;jle/jng
-		db	@@jg	- @@jx		;jg/jnle
-		db	@@loopne- @@jx		;loopne
-		db	@@loope	- @@jx		;loope
-		db	@@loop	- @@jx		;loop
-		db	@@jcxz	- @@jx		;jcxz
+.condition_table:
+		db	.jo	- .jx		;jo
+		db	.jno	- .jx		;jno
+		db	.jb	- .jx		;jb/jnae
+		db	.jnb	- .jx		;jae/jnb
+		db	.jz	- .jx		;je/jz
+		db	.jnz	- .jx		;jne/jnz
+		db	.jna	- .jx		;jbe/jna
+		db	.ja	- .jx		;ja/jnbe
+		db	.js	- .jx		;js
+		db	.jns	- .jx		;jns
+		db	.jp	- .jx		;jp/jpe
+		db	.jnp	- .jx		;jnp/jpo
+		db	.jl	- .jx		;jl/jnge
+		db	.jnl	- .jx		;jge/jnl
+		db	.jng	- .jx		;jle/jng
+		db	.jg	- .jx		;jg/jnle
+		db	.loopne- .jx		;loopne
+		db	.loope	- .jx		;loope
+		db	.loop	- .jx		;loop
+		db	.jcxz	- .jx		;jcxz
 
 reg_offs_table:
 		dw	cpu_regs+REG_AX
@@ -924,35 +924,35 @@ adjust_address:
 set_direction:
 		call	pushr
 		test	byte [ref_flags],RF_JUMP
-		jz	@@exit
+		jz	.exit
 
 		cld
 		mov	si,buffer + BUF_SIZE	;-offset
 
-@@next_char:
+.next_char:
 		dec	si
 		cmp	byte [si],' '
-		je	@@next_char
+		je	.next_char
 		mov	di,si
 		push	ds
 		pop	es
 		scasw
 		mov	al,18h
 		test	byte [ref_flags],RF_BACKWARD
-		jnz	@@check_condition
+		jnz	.check_condition
 		mov	al,19h
 
-@@check_condition:
+.check_condition:
 		test	byte [ref_flags],RF_CONDITION
-		jz	@@set_direction
+		jz	.set_direction
 		test	byte [ref_flags],RF_TRUE
-		jnz	@@set_direction
+		jnz	.set_direction
 		add	al,1Eh-18h
 
-@@set_direction:
+.set_direction:
 		stosb
 
-@@exit:
+.exit:
 		call	popr
 		ret
 ;=============================================================================
@@ -971,11 +971,11 @@ display_code_marks:
 		mov	bp,code_mark_buff
 		mov	di,1
 
-@@next_mark:
+.next_mark:
 		test	[code_mark_exist],di
-		jz	@@next
+		jz	.next
 		cmp	word [bp],0ffffh
-		je	@@next
+		je	.next
 		mov	ax,[bp+6]
 		mov	dx,[bp+4]
 		call	adjust_address
@@ -986,19 +986,19 @@ display_code_marks:
 		call	adjust_address
 		cmp	ax,bx
 		pop	bx
-		jne	@@next
+		jne	.next
 		mov	ax,atCodeMark*256+'0'+10
 		sub	al,cl
 		cmp	dx,si
-		je	@@write
+		je	.write
 
-@@next:
+.next:
 		shl	di,1
 		add	bp,4*2
-		loop	@@next_mark
+		loop	.next_mark
 		mov	ax,atCodeMark*256+' '
 
-@@write:
+.write:
 		pop	di
 		stosw
 		call	popr

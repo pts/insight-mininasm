@@ -47,15 +47,15 @@
 toggle_break:
 		mov	si,[cur_line_ip]
 		call	check_break			;Is bp exist?
-		jc	@@set				;No, set bp
+		jc	.set				;No, set bp
 		mov	byte [bx+BP_ACTIVE],BP_UNUSED	;Clear bp...
-		jmp	@@ok				;and exit
-@@set:
+		jmp	.ok				;and exit
+.set:
 		mov	bx,bp1
 		mov	cx,MAX_BREAKPOINTS
-@@next_bp:
+.next_bp:
 		cmp	byte [bx+BP_ACTIVE],BP_UNUSED
-		jne	@@skip
+		jne	.skip
 		mov	ax,[unasm_seg]
 		mov	[bx+BP_SEG],ax			;Set segment
 		mov	ax,[cur_line_ip]
@@ -63,17 +63,17 @@ toggle_break:
 		mov	byte [bx+BP_SET],0		;Bp is not set
 		call	test_break
 		mov	si,bp_not_in_ram
-		jc	@@err_msg			;Can't set bp...
+		jc	.err_msg			;Can't set bp...
 		mov	byte [bx+BP_ACTIVE],BP_ENABLED	;Enable bp
-		jmp	@@ok
-@@skip:
+		jmp	.ok
+.skip:
 		add	bx,SIZEOF_BREAKPOINT
-		loop	@@next_bp
+		loop	.next_bp
 
 		mov	si,many_bp_msg
-@@err_msg:
+.err_msg:
 		call	_error_message
-@@ok:
+.ok:
 		jmp	update_commands
 ;=============================================================================
 ; toggle_activity
@@ -88,9 +88,9 @@ toggle_break:
 toggle_activity:
 		mov	si,[cur_line_ip]
 		call	check_break
-		jnc	@@toggle
+		jnc	.toggle
 		jmp	beep
-@@toggle:
+.toggle:
 		xor	byte [bx+BP_ACTIVE],BP_ENABLED ^ BP_DISABLED
 		jmp	update_commands
 ;=============================================================================
@@ -107,13 +107,13 @@ set_all_breaks:
 		mov	bx,bp1
 		mov	cx,MAX_BREAKPOINTS
 
-@@next_bp:
+.next_bp:
 		cmp	byte [bx+BP_ACTIVE],BP_UNUSED
-		je	@@skip
+		je	.skip
 		mov	byte [bx+BP_ACTIVE],al
-@@skip:
+.skip:
 		add	bx,SIZEOF_BREAKPOINT
-		loop	@@next_bp
+		loop	.next_bp
 
 		jmp	update_commands
 ;=============================================================================
@@ -177,9 +177,9 @@ test_break:
 		mov	al,[si]
 		mov	byte [si],0cch
 		cmp	byte [si],0cch
-		je	@@ok
+		je	.ok
 		stc
-@@ok:
+.ok:
 		mov	[si],al
 		sti
 		pop	ds
@@ -205,21 +205,21 @@ check_break:
 		push	cx
 		mov	bx,bp1			;Array of breakpoint structures
 		mov	cx,MAX_BREAKPOINTS
-@@next_bp:
+.next_bp:
 		cmp	byte [bx+BP_ACTIVE],BP_UNUSED
-		je	@@skip			;Unused...
+		je	.skip			;Unused...
 		cmp	si,[bx+BP_OFFS]
-		jne	@@skip			;Offset doesn't match...
+		jne	.skip			;Offset doesn't match...
 		mov	ax,[unasm_seg]
 		cmp	ax,[bx+BP_SEG]
-		jne	@@skip			;Segment doesn't match...
+		jne	.skip			;Segment doesn't match...
 		cmp	byte [bx+BP_ACTIVE],BP_ENABLED
-		jmp	@@exit			;All Ok, flags are set, exit
-@@skip:
+		jmp	.exit			;All Ok, flags are set, exit
+.skip:
 		add	bx,SIZEOF_BREAKPOINT
-		loop	@@next_bp
+		loop	.next_bp
 		stc				;Breakpoint not found
-@@exit:
+.exit:
 		pop	cx
 		pop	ax
 		ret

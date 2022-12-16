@@ -126,10 +126,10 @@ check_vector:
 		xor	ax,ax
 		mov	ds,ax
 		cmp	[si],di
-		jne	@@exit
+		jne	.exit
 		mov	ax,es
 		cmp	[si+2],ax
-@@exit:
+.exit:
 		pop	ds
 		ret
 ;=============================================================================
@@ -137,17 +137,17 @@ check_vector:
 ;-----------------------------------------------------------------------------
 keyboard_service:
 		cmp	ax,MAGIC_REQUEST_CODE
-		jne	@@int_exit
+		jne	.int_exit
 		cmp	bx,DEVELOPER_ID
-		jne	@@int_exit
+		jne	.int_exit
 		cmp	cx,APPLICATION_ID
-		jne	@@int_exit
+		jne	.int_exit
 		mov	ax,MAGIC_ANSWER_CODE
 		mov	bx,DEBUGGER_VERSION
 		push	cs
 		pop	es
 		iret
-@@int_exit:
+.int_exit:
 		jmp	far [cs:save_int_16]
 ;=============================================================================
 ; critical_handler
@@ -165,10 +165,10 @@ is_resident:
 		int	16h
 		mov	dx,not_installed_msg
 		cmp	ax,MAGIC_ANSWER_CODE
-		jne	@@exit
+		jne	.exit
 		mov	dx,version_msg
 		cmp	bx,DEBUGGER_VERSION
-@@exit:
+.exit:
 		ret
 ;=============================================================================
 ; E0F

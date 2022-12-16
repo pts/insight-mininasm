@@ -31,15 +31,15 @@ copy_mem_block:
 		mov	si,copy_data_dialog
 		call	init_dialog
 
-@@again_:
+.again_:
 		mov	byte [copy_dlg_item],0
-@@again:
+.again:
 		call	exec_dialog_
-		jz	@@exit
+		jz	.exit
 
 		mov	si,from_string
 		call	get_address_ds
-		jc	@@again_
+		jc	.again_
 
 		call	adjust_address
 
@@ -49,7 +49,7 @@ copy_mem_block:
 		mov	si,to_string
 		call	get_address_ds
 		mov	byte [copy_dlg_item],1
-		jc	@@again
+		jc	.again
 
 		call	adjust_address
 
@@ -58,7 +58,7 @@ copy_mem_block:
 
 		call	get_counter
 		mov	byte [copy_dlg_item],2
-		jc	@@again
+		jc	.again
 
 		xchg	ax,cx
 		cld
@@ -67,22 +67,22 @@ copy_mem_block:
 		mov	ax,ds
 		mov	bx,es
 		cmp	ax,bx
-		ja	@@copy
-		jb	@@change_dir
+		ja	.copy
+		jb	.change_dir
 		cmp	si,di
-		ja	@@copy
-@@change_dir:
+		ja	.copy
+.change_dir:
 		add	si,cx
 		add	di,cx
 		dec	si
 		dec	di
 		std
-@@copy:
+.copy:
 	rep	movsb
 		push	cs
 		pop	ds
 
-@@exit:
+.exit:
 		call	draw_screen
 		stc
 		ret
@@ -93,15 +93,15 @@ fill_mem_block:
 		mov	si,fill_data_dialog
 		call	init_dialog
 
-@@again_:
+.again_:
 		mov	byte [fill_dlg_item],0
-@@again:
+.again:
 		call	exec_dialog_
-		jz	@@exit
+		jz	.exit
 
 		mov	si,to_string
 		call	get_address_ds
-		jc	@@again_
+		jc	.again_
 
 		call	adjust_address
 
@@ -110,40 +110,40 @@ fill_mem_block:
 
 		call	get_counter
 		mov	byte [fill_dlg_item],1
-		jc	@@again
+		jc	.again
 
 		mov	[count_value],ax
 
 		mov	si,fill_string
 		mov	di,fill_bin
 		call	create_bin
-		jc	@@error
+		jc	.error
 		sub	di,fill_bin
-		jz	@@exit
+		jz	.exit
 
 		xchg	ax,di
 		mov	cx,[count_value]
 		les	di,[to_addr]
 		cld
 
-@@next:
+.next:
 		push	cx
 		mov	cx,ax
 		mov	si,fill_bin
 	rep	movsb
 		pop	cx
-		loop	@@next
+		loop	.next
 
-@@exit:
+.exit:
 		call	draw_screen
 		stc
 		ret
 
-@@error:
+.error:
 		mov	si,string_error_msg
 		call	_error_message
 		mov	byte [fill_dlg_item],2
-		jmp	@@again
+		jmp	.again
 ;=============================================================================
 ; write_mem_block
 ;-----------------------------------------------------------------------------
@@ -154,23 +154,23 @@ write_mem_block:
 		mov	si,read_data_dialog
 		call	init_dialog
 
-@@again_:
+.again_:
 		mov	byte [block_dlg_item],0
-@@again:
+.again:
 		call	exec_dialog_
 		jz	rwb_exit
 
 		mov	si,from_string
 		mov	byte [block_dlg_item],1
 		call	get_address_ds
-		jc	@@again
+		jc	.again
 
 		mov	[from_addr],ax
 		mov	[from_addr+2],dx
 
 		inc	byte [block_dlg_item]
 		call	get_counter
-		jc	@@again
+		jc	.again
 
 		call	draw_screen
 
@@ -179,7 +179,7 @@ write_mem_block:
 		mov	dx,filename_string
 		mov	ax,3d02h
 		int	21h
-		jc	@@create
+		jc	.create
 
 		xchg	ax,bx
 		mov	si,question_dialog
@@ -188,21 +188,21 @@ write_mem_block:
 		call	draw_screen
 		cmp	al,CM_OK
 		jb	rwb_close
-		jne	@@write
+		jne	.write
 		cwd
 		mov	ax,4202h
 		xor	cx,cx
 		int	21h
-		jmp	@@write
+		jmp	.write
 
-@@create:
+.create:
 		mov	ah,3ch
 		xor	cx,cx
 		int	21h
 		xchg	ax,bx
 		jc	..@create_error
 
-@@write:
+.write:
 		mov	cx,[count_value]
 		push	ds
 		lds	dx,[from_addr]
@@ -246,23 +246,23 @@ read_mem_block:
 		mov	si,read_data_dialog
 		call	init_dialog
 
-@@again_:
+.again_:
 		mov	byte [block_dlg_item],0
-@@again:
+.again:
 		call	exec_dialog_
 		jz	rwb_exit
 
 		mov	si,from_string
 		call	get_address_ds
 		mov	byte [block_dlg_item],1
-		jc	@@again
+		jc	.again
 
 		mov	[from_addr],ax
 		mov	[from_addr+2],dx
 
 		call	get_counter
 		mov	byte [block_dlg_item],2
-		jc	@@again
+		jc	.again
 
 		call	draw_screen
 

@@ -96,9 +96,9 @@ param_8086:
 		or	dx,dx
 		jz	no_params
 		or	dh,dh
-		jne	@@no_print
+		jne	.no_print
 		mov	byte [cs:print_flag],1
-@@no_print:
+.no_print:
 		mov	al,dl
 		call	analyze_param
 		cmp	byte [cs:db_flag],0
@@ -135,10 +135,10 @@ no_rep:
 prefix_now_used:
 						;[1245 - 1.01]
 		cmp	byte [cs:op_size_flag],0
-		je	@@skip_param_32
+		je	.skip_param_32
 		mov	byte [cs:memory_flag],3
 
-@@skip_param_32:
+.skip_param_32:
 						;[1245 - 1.01]
 		push	di
 		mov	cx,si
@@ -220,11 +220,11 @@ check_286_inst:
 		cmp	bl,80h
 		jae	not_286
 		cmp	bl,[cs:cpu_type]
-		jbe	@@ok
+		jbe	.ok
 		mov	dx,cdb
 		jmp	..@go_ahead
 
-@@ok:
+.ok:
 		mov	byte [cs:inst_286],1
 		jmp	..@test_ext
 
@@ -248,27 +248,27 @@ not_286:
 		je	ch_second
 ..@test_ext:
 		cmp	byte [cs:addr_size_flag],0
-		je	@@skip_addr
+		je	.skip_addr
 		cmp	al,0e3h
 		je	check_jecxz
-@@skip_addr:
+.skip_addr:
 		cmp	byte [cs:op_size_flag],0
-		je	@@skip_op
+		je	.skip_op
 		mov	bx,ext_table
-@@next_ext:
+.next_ext:
 		mov	ah,[cs:bx]
 		or	ah,ah
 		jz	..@go_ahead
 		cmp	al,ah
-		je	@@found_ext
+		je	.found_ext
 		add	bx,3
-		jmp	@@next_ext
-@@found_ext:
+		jmp	.next_ext
+.found_ext:
 		mov	dx,[cs:bx+1]
 		jmp	..@go_ahead
-@@skip_op:
+.skip_op:
 ;		cmp	al,0D8h
-;		jb	@@Go_ahead
+;		jb	.Go_ahead
 ;		cmp	al,0DFh
 ;		jbe	Coprocessor
 ..@go_ahead:
@@ -298,14 +298,14 @@ groups:
 		mov	bl,al
 		and	bl,00111000b
 		cmp	dx,grp_1
-		jne	@@1
+		jne	.1
 		cmp	bl,00000000b
-		jne	@@1
+		jne	.1
 		mov	byte [cs:cur_param+1],aim8
 		cmp	byte [cs:cur_param],arm8
-		je	@@1
+		je	.1
 		mov	byte [cs:cur_param+1],aim16
-@@1:
+.1:
 		shr	bl,1
 		shr	bl,1
 		shl	dx,1
@@ -323,10 +323,10 @@ groups:
 		call	unasm_fill_str
 		pop	si
 		cmp	di,OPER_X
-		ja	@@exit
+		ja	.exit
 		mov	di,OPER_X
 		ret
-@@exit:
+.exit:
 		inc	di
 		ret
 
@@ -400,9 +400,9 @@ analyze_386_inst:
 		mov	di,table_386_loc
 		mov	cx,T3_LENGTH
 		cmp	byte [cs:cpu_type],a486
-		jne	@@3
+		jne	.3
 		mov	cx,T4_LENGTH
-@@3:
+.3:
 	repne	scasb
 		mov	bx,di
 		pop	es
@@ -736,7 +736,7 @@ param_486:
 ;		or	bl,al
 ;		add	bx,bx
 ;		mov	si,cs:CoprocCmd[bx]
-;		jmp	@@Quit
+;		jmp	.Quit
 
 ;=============================================================================
 ; analyze_param
@@ -745,9 +745,9 @@ analyze_param:
 		mov	byte [cs:word_flag],0
 		mov	byte [cs:dword_flag],0
 		test	al,80h
-		jz	@@byte
+		jz	.byte
 		inc	byte [cs:word_flag]
- @@byte:
+ .byte:
 		and	al,7fh
 
 		cmp	al,40h
@@ -841,9 +841,9 @@ sub_table:
 ;-----------------------------------------------------------------------------
 immed_reg:
  		cmp	al,aal
- 		jae	@@byte_reg
+ 		jae	.byte_reg
  		mov	byte [cs:word_flag],1
-@@byte_reg:
+.byte_reg:
 		xor	bx,bx
 		mov	bl,al
 		sub	bl,40h
@@ -891,10 +891,10 @@ memory:
 		mov	al,'['
 		stosb
 		cmp	byte [cs:addr_size_flag],0
-		je	@@1
+		je	.1
 		call	fill_dword_str
-		jmp	@@2
-@@1:
+		jmp	.2
+.1:
 		lodsw
 		mov	[cs:mem_disp_offs],ax
 		mov	byte [cs:mem_disp_type],8
@@ -902,7 +902,7 @@ memory:
 		inc	ch
 		mov	[cs:memory_flag],ch
 		call	fill_word_str
-@@2:
+.2:
 		mov	al,']'
 		stosb
 		ret
@@ -957,26 +957,26 @@ not_print:
 		cbw
 ..@print_jump:
 		call	check$
-		jc	@@ret1
+		jc	.ret1
 		add	ax,si
 		call	fill_word_str
-@@ret1:
+.ret1:
 		ret
 check$:
 		or	ax,ax
-		jz	@@$p
+		jz	.$p
 		mov	bx,[cs:unasm_cur_ip]
 		sub	bx,si
 		cmp	ax,bx
-		je	@@$
+		je	.$
 		clc
 		ret
-@@$:
+.$:
 		mov	al,'$'
 		stosb
 		stc
 		ret
-@@$p:
+.$p:
 		mov	ax,'$+'
 		stosw
 		mov	ax,si
@@ -1041,23 +1041,23 @@ far_far:
 reg_mem:
 		lodsb
 		cmp	byte [cs:cur_cmd],0feh
-		jae	@@jumps
-@@reg_mem:
+		jae	.jumps
+.reg_mem:
 		jmp	analyze_rm_disp
-@@jumps:
+.jumps:
 		push	ax
 		and	al,00111000b
 		cmp	al,00011000b
-		jne	@@ch_jump
+		jne	.ch_jump
 		mov	byte [cs:dword_flag],1
-		jmp	@@ret
-@@ch_jump:
+		jmp	.ret
+.ch_jump:
 		cmp	al,00101000b
-		jne	@@ret
+		jne	.ret
 		mov	byte [cs:dword_flag],1
-@@ret:
+.ret:
 		pop	ax
-		jmp	@@reg_mem
+		jmp	.reg_mem
 ;=============================================================================
 ; reg_mem_reg
 ;-----------------------------------------------------------------------------
@@ -1178,9 +1178,9 @@ analyze_rm_disp:
 		add	ch,[cs:dword_flag]
 		mov	[cs:memory_flag],ch
 		cmp	byte [cs:addr_size_flag],1
-;		jne	@@not_disp_32_bit
+;		jne	.not_disp_32_bit
 ;		jmp	disp_32_bit
-;@@not_disp_32_bit:
+;.not_disp_32_bit:
 		je	disp_32_bit	;!!!
 		mov	ch,al
 		and	al,11000000b
@@ -1367,14 +1367,14 @@ get_register:
 ;-----------------------------------------------------------------------------
 insert_op_size:
 		cmp	byte [cs:op_size_flag],0
-		je	@@ret
+		je	.ret
 		cmp	byte [cs:word_flag],0
-		je	@@ret
+		je	.ret
 		push	ax
 		mov	al,'e'
 		stosb
 		pop	ax
-@@ret:
+.ret:
 		ret
 ;=============================================================================
 ; analyze_rm_seg
@@ -1383,17 +1383,17 @@ analyze_rm_seg:
 		push	ax
 		and	al,00111000b
 		cmp	byte [cs:cpu_type],a386
-		jae	@@3
+		jae	.3
 		cmp	al,00011000b
-		jbe	@@1
-@@bad_seg_reg:
+		jbe	.1
+.bad_seg_reg:
 		mov	byte [cs:db_flag],1
 		pop	ax
 		ret
-@@3:
+.3:
 		cmp	al,00101000b
-		ja	@@bad_seg_reg
-@@1:
+		ja	.bad_seg_reg
+.1:
 		shr	al,1
 		shr	al,1
 		cbw
@@ -1439,9 +1439,9 @@ of111		db	'[bx',0
 ;-----------------------------------------------------------------------------
 get_32_disp:
 		cmp	byte [cs:op_size_flag],0
-		je	@@1
+		je	.1
 		mov	byte [dword_flag],1
-@@1:
+.1:
 		call	print_ptr
 		cbw
 		mov	bx,ax
@@ -1494,32 +1494,32 @@ print_ptr:
 		push	ax
 		push	si
 		cmp	byte [cs:print_flag],0
-		je	@@quit
+		je	.quit
 		mov	si,pt_byte
 		cmp	byte [cs:word_flag],0
-		je	@@byte
+		je	.byte
 		mov	si,pt_word
 						;[1245 - 1.01]
 		cmp	byte [cs:op_size_flag],0
-		je	@@check_dword
+		je	.check_dword
 		mov	byte [cs:dword_flag],1
 ;		mov	cs:memory_flag,3
-@@check_dword:
+.check_dword:
 						;[1245 - 1.01]
 		cmp	byte [cs:dword_flag],0
-		je	@@byte
+		je	.byte
 		dec	si
-@@byte:
+.byte:
 		call	unasm_fill_str
 		mov	si,pt_ptr
 		call	unasm_fill_str
-@@quit:
+.quit:
 		cmp	word [cs:cur_prefix],0
-		je	@@exit
+		je	.exit
 		mov	si,[cs:cur_prefix]
 		mov	[cs:mem_prefix],si
 		call	unasm_fill_str
-@@exit:
+.exit:
 		mov	word [cs:cur_prefix],0
 		pop	si
 		pop	ax
@@ -1531,27 +1531,27 @@ unasm_fill_str:
 		push	ds
 		push	cs
 		pop	ds
-@@next:
+.next:
 		lodsb
 		or	al,al
-		jz	@@quit
+		jz	.quit
 		stosb
-		jmp	@@next
-@@quit:
+		jmp	.next
+.quit:
 		pop	ds
 		ret
 ;=============================================================================
 ; fill_csbx
 ;-----------------------------------------------------------------------------
 fill_csbx:
-@@next:
+.next:
 		mov	al,[cs:bx]
 		or	al,al
-		jz	@@quit
+		jz	.quit
 		stosb
 		inc	bx
-		jmp	@@next
-@@quit:
+		jmp	.next
+.quit:
 		ret
 ;=============================================================================
 ; delimit
@@ -1574,28 +1574,28 @@ fill_addr:
 fill_codes:
 		push	si
 		mov	si,[cs:unasm_cur_ip]
-@@next_byte:
+.next_byte:
 		cmp	di,CMD_X-1
-		jae	@@trunc
+		jae	.trunc
 		lodsb
 		call	fill_byte_str
-		loop	@@next_byte
-@@quit:
+		loop	.next_byte
+.quit:
 		pop	si
 		ret
-@@trunc:
+.trunc:
 		mov	al,'+'
 		stosb
-		jmp	@@quit
+		jmp	.quit
 ;=============================================================================
 ; fill_wb
 ;-----------------------------------------------------------------------------
 fill_wb:
 		cmp	byte [cs:word_flag],1
-		je	@@out_word
+		je	.out_word
 		lodsb
 		jmp	fill_byte_str
-@@out_word:
+.out_word:
 		lodsw
 		jmp	fill_word_str
 ;-------------------------------------------------------------------------------

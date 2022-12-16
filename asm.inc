@@ -38,23 +38,23 @@ assemble:
 		push	cs
 		pop	es
 		mov	byte [rep_pref],0
-@@find_next:
+.find_next:
 		call	find_name
 
 		cmp	bx,rep_prefixes
 		jb	not_rep
 		mov	al,[bx+5]
 		mov	[rep_pref],al
-		jmp	@@find_next
+		jmp	.find_next
 not_rep:
 		call	upline
 
 		cmp	byte [rep_pref],0
-		je	@@no_rep
+		je	.no_rep
 		cmp	byte [bx+6],-1
-		je	@@no_rep
+		je	.no_rep
 		jmp	rep_error
-@@no_rep:
+.no_rep:
 		mov	byte [jump_flag],0
 		cmp	bx,jumps_and_calls
 		jb	not_jumps
@@ -75,14 +75,14 @@ not_jumps:
 ;		or	ax,ax
 ;		jz	TypeWarning
 		cmp	bx,diff_types
-		jae	@@1
+		jae	.1
 		cmp	al,0
-		je	@@1
+		je	.1
 		cmp	ah,0
-		je	@@1
+		je	.1
 		cmp	al,ah
 		jne	reg_error
-@@1:
+.1:
 		call	skip_spaces
 		jz	one_param
 		jmp	extra_error
@@ -115,22 +115,22 @@ next_proc:
 		mov	cl,al
 		mov	ch,0
 		cmp	byte [rep_pref],0
-		jz	@@ch_pr
+		jz	.ch_pr
 		mov	al,[rep_pref]
 		stosb
-@@ch_pr:
+.ch_pr:
 		cmp	byte [curr_prefix],-1
-		je	@@copy
+		je	.copy
 ;		cmp	Parameter1.MemFlag,0
-;		jne	@@Mem1
+;		jne	.Mem1
 ;		cmp	Parameter2.MemFlag,0
-;		je	@@Copy
-;@@Mem1:
+;		je	.Copy
+;.Mem1:
 		mov	al,[curr_prefix]
 		mov	bx,pref_codes
 		xlat
 		stosb
-@@copy:
+.copy:
 	rep	movsb
 		clc
 		ret
@@ -166,13 +166,13 @@ find_name:
 		jz	no_name
 		mov	di,name_buf
 		mov	cx,MAX_LETTER
-@@next_letter:
+.next_letter:
 		lodsb
 		call	test_space
 		jz	end_name
 		call	lowcase
 		stosb
-		loop	@@next_letter
+		loop	.next_letter
 		jmp	mnem_error
 end_name:
 		dec	si
@@ -190,7 +190,7 @@ next_mnem:
 	repe	cmpsb
 		pop	si
 		pop	cx
-		je	@@found
+		je	.found
 		mov	al,[bx]
 		cbw
 		shl	ax,1
@@ -200,7 +200,7 @@ next_mnem:
 		or	ax,ax
 		jne	next_mnem
 		jmp	mnem_error
-@@found:
+.found:
 ;		mov	CurCmd,bx
 		pop	si
 		ret
@@ -212,10 +212,10 @@ no_name:
 ;-----------------------------------------------------------------------------
 get_parameter:
 		call	skip_spaces
-		jnz	@@1
+		jnz	.1
 		stc
 		jmp	get_parameter_quit
-@@1:
+.1:
 		xor	ax,ax
 		mov	[di+AP_MEM_FLAG],al
 		mov	[di+AP_WORD_FLAG],al
@@ -227,47 +227,47 @@ get_parameter:
 		call	get_xptr
 		jz	..@next
 		cmp	al,'$'
-		je	@@j$
+		je	.j$
 		cmp	al,'['
-		jne	@@skip
+		jne	.skip
 		jmp	..@mem_start		;jump out of range
-@@skip:
+.skip:
 		call	find_seg_reg
 		jz	seg_reg_param
 		call	find_reg
 		je	reg_param		;jump out of range
 		cmp	al,'-'
-		jne	@@nm
+		jne	.nm
 		mov	byte [minus_flag],1
 		inc	si
-@@next_val:
+.next_val:
 		mov	ax,[si]
-@@nm:
+.nm:
 		call	test_hex
 		jc	jump_to_wrong_param_1		;jump out of range
 		call	get_value
-@@add_offs:
+.add_offs:
 		cmp	byte [minus_flag],0
-		je	@@pl
+		je	.pl
 		neg	dx
 		mov	byte [minus_flag],0
-@@pl:
+.pl:
 		add	[di+AP_VALUE],dx
 		lodsb
 		cmp	al,'+'
-		je	@@next_val
+		je	.next_val
 		cmp	al,'-'
 		jne	..@emp
 		mov	byte [minus_flag],1
-		jmp	@@next_val
+		jmp	.next_val
 
-@@j$:
+.j$:
 
 ;		mov	dx,asm_offs
 		mov	dx,[jump_origin_offs]
 
 		inc	si
-		jmp	@@add_offs
+		jmp	.add_offs
 
 seg_reg_param:
 		cmp	byte [si+2],':'
@@ -305,11 +305,11 @@ byte_reg:
 		dec	si
 check_extra:
 		call	skip_spaces
-		jz	@@jump_to_ok_quit	;jump out of range
+		jz	.jump_to_ok_quit	;jump out of range
 		cmp	al,','
 		jnz	extra_error		;jump out of range
 		inc	si
-@@jump_to_ok_quit:
+.jump_to_ok_quit:
 		jmp	..@ok_quit
 
 extra_error:
@@ -351,7 +351,7 @@ next_mem_param:
 
 		mov	ax,[si]
 		cmp	al,'$'
-		je	@@$
+		je	.$
 		call	find_reg
 		je	mem_reg
 ..@get_value:
@@ -359,19 +359,19 @@ next_mem_param:
 		jc	jump_to_bad_mem_param		;jump out of range
 		call	get_value
 		cmp	byte [minus_flag],0
-		je	@@2
+		je	.2
 		neg	dx
 		mov	byte [minus_flag],0
-@@2:
+.2:
 		add	[di+AP_VALUE],dx
 		jmp	..@3
-@@$:
+.$:
 
 ;		mov	dx,asm_offs
 		mov	dx,[jump_origin_offs]
 
 		inc	si
-		jmp	@@2
+		jmp	.2
 mem_next:
 		inc	si
 		inc	si
@@ -395,26 +395,26 @@ jump_to_bad_mem_param:
 		jmp	bad_mem_param
 mem_reg:
 		cmp	al,regBX
-		jne	@@bp
+		jne	.bp
 		cmp	word [di+AP_BX_FLAG],0
 		jne	bad_mem_param
 		inc	byte [di+AP_BX_FLAG]
 		jmp	mem_next
-@@bp:
+.bp:
 		cmp	al,regBP
-		jne	@@si
+		jne	.si
 		cmp	word [di+AP_BX_FLAG],0
 		jne	bad_mem_param
 		inc	byte [di+AP_BP_FLAG]
 		jmp	mem_next
-@@si:
+.si:
 		cmp	al,regSI
-		jne	@@di
+		jne	.di
 		cmp	word [di+AP_SI_FLAG],0
 		jne	bad_mem_param
 		inc	byte [di+AP_SI_FLAG]
 		jmp	mem_next
-@@di:
+.di:
 		cmp	al,regDI
 		jne	bad_mem_param
 		cmp	word [di+AP_SI_FLAG],0
@@ -436,67 +436,67 @@ bad_mem_param:
 ;-----------------------------------------------------------------------------
 get_xptr:
 		cmp	byte [di+AP_WORD_FLAG],0
-		jne	@@4
+		jne	.4
 		cmp	al,'W'
 		je	..@check_word
 		cmp	byte [jump_flag],1
 		je	jump_xptr
 		cmp	al,'B'
 		je	..@check_byte
-@@4:
+.4:
 		ret
 jump_xptr:
 		cmp	ax,'FA'
-		je	@@check_far
+		je	.check_far
 		cmp	ax,'DW'
-		je	@@check_dw
+		je	.check_dw
 		cmp	ax,'SH'
-		je	@@check_short
+		je	.check_short
 		ret
-@@check_short:
+.check_short:
 		lodsw
 		lodsw
 		cmp	ax,'OR'
-		je	@@cs_1
+		je	.cs_1
 		ret
-@@cs_1:
+.cs_1:
 		lodsb
 		cmp	al,'T'
-		je	@@check_ptr
+		je	.check_ptr
 		ret
-@@check_far:
+.check_far:
 		lodsw
 		lodsb
 		mov	dl,3
 		cmp	al,'R'
-		je	@@check_ptr
+		je	.check_ptr
 		ret
-@@check_dw:
+.check_dw:
 		lodsw
 		lodsw
 		mov	dl,3
 		cmp	ax,'OR'
-		je	@@cd_2
+		je	.cd_2
 		ret
-@@cd_2:
+.cd_2:
 		lodsb
 		cmp	al,'D'
-		je	@@check_ptr
+		je	.check_ptr
 ..@check_byte:
 		mov	dl,1
 		cmp	ah,'/'
-		je	@@ptr_1
+		je	.ptr_1
 		cmp	ah,'Y'
-		je	@@check_byte_1
+		je	.check_byte_1
 		ret
 ..@check_word:
 		mov	dl,2
 		cmp	ah,'/'
-		je	@@ptr_1
+		je	.ptr_1
 		cmp	ah,'O'
-		je	@@check_word_1
+		je	.check_word_1
 		ret
-@@ptr_1:
+.ptr_1:
 		mov	[di+AP_WORD_FLAG],dl
 		inc	si
 		inc	si
@@ -505,39 +505,39 @@ jump_xptr:
 		jz	jump_to_wrong_param_2
 		cmp	ax,ax
 		ret
-@@check_byte_1:
+.check_byte_1:
 		lodsw
 		lodsw
 		cmp	ax,'TE'
-		je	@@check_ptr
+		je	.check_ptr
 		ret
-@@check_word_1:
+.check_word_1:
 		lodsw
 		lodsw
 		cmp	ax,'RD'
-		je	@@check_ptr
+		je	.check_ptr
 		ret
-@@check_ptr:
+.check_ptr:
 		call	skip_spaces
 		jnz	..@not_spc
 jump_to_wrong_param_2:
 		jmp	wrong_param
 ..@not_spc:
 		cmp	al,'['
-		je	@@ok
+		je	.ok
 		cmp	al,'$'
-		je	@@ok
+		je	.ok
 		call	test_hex
-		jnc	@@ok
+		jnc	.ok
 		lodsw
 		cmp	ax,'PT'
-		jne	@@quit_2
+		jne	.quit_2
 		lodsb
 		cmp	al,'R'
-		je	@@ok
-@@quit_2:
+		je	.ok
+.quit_2:
 		ret
-@@ok:
+.ok:
 		mov	[di+AP_WORD_FLAG],dl
 		jmp	..@get_xptr_quit
 ;=============================================================================
@@ -548,11 +548,11 @@ find_seg_reg:
 		mov	di,asm_seg_regs
 		mov	cx,4
 	repne	scasw
-		jne	@@quit
+		jne	.quit
 		lea	ax,[di-(asm_seg_regs-offset_0100h+102h)]
 		shr	ax,1
 		cmp	ax,ax
-@@quit:
+.quit:
 		pop	di
 		ret
 ;=============================================================================
@@ -567,11 +567,11 @@ find_reg:
 		mov	di,asm_regs
 		mov	cx,16
 	repne	scasw
-		jne	@@quit
+		jne	.quit
 		lea	ax,[di-(asm_regs-offset_0100h+102h)]
 		shr	ax,1
 		cmp	ax,ax
-@@quit:
+.quit:
 		pop	di
 		ret
 ;=============================================================================
@@ -584,17 +584,17 @@ asm_regs	db	'ALCLDLBLAHCHDHBH'
 ;-----------------------------------------------------------------------------
 test_hex:
 		cmp	al,'0'
-		jb	@@not
+		jb	.not
 		cmp	al,'9'
-		jbe	@@hex
+		jbe	.hex
 		cmp	al,'A'
-		jb	@@not
+		jb	.not
 		cmp	al,'F'
-		ja	@@not
-@@hex:
+		ja	.not
+.hex:
 		clc
 		ret
-@@not:
+.not:
 		stc
 		ret
 ;=============================================================================
@@ -602,18 +602,18 @@ test_hex:
 ;-----------------------------------------------------------------------------
 get_value:
 		xor	dx,dx
-@@next:
+.next:
 		lodsb
 		sub	al,'0'
-		jb	@@end
+		jb	.end
 		cmp	al,9
-		jbe	@@digit
+		jbe	.digit
 		cmp	al,'A'-'0'
-		jb	@@end
+		jb	.end
 		cmp	al,'F'-'0'
-		ja	@@end
+		ja	.end
 		sub	al,7
-@@digit:
+.digit:
 		test	dh,0f0h
 		jnz	big_num_error
 		shl	dx,1
@@ -621,8 +621,8 @@ get_value:
 		shl	dx,1
 		shl	dx,1
 		or	dl,al
-		jmp	@@next
-@@end:
+		jmp	.next
+.end:
 		dec	si
 		ret
 big_num_error:
@@ -632,30 +632,30 @@ big_num_error:
 ; skip_spaces
 ;-----------------------------------------------------------------------------
 skip_spaces:
-@@next:
+.next:
 		lodsb
 		cmp	al,' '
-		je	@@next
+		je	.next
 		cmp	al,9
-		je	@@next
+		je	.next
 		dec	si
 		cmp	al,0
-		je	@@ok
+		je	.ok
 		cmp	al,';'
-@@ok:
+.ok:
 		ret
 ;=============================================================================
 ; test_space
 ;-----------------------------------------------------------------------------
 test_space:
 		cmp	al,' '
-		je	@@ok
+		je	.ok
 		cmp	al,9
-		je	@@ok
+		je	.ok
 		cmp	al,0
-		je	@@ok
+		je	.ok
 		cmp	al,';'
-@@ok:
+.ok:
 		ret
 ;=============================================================================
 
@@ -664,11 +664,11 @@ test_space:
 ;~;------------------------------------------------------------------------------
 ;~UpCase:		;~proc
 ;~		cmp	al,'a'
-;~		jb	@@1
+;~		jb	.1
 ;~		cmp	al,'z'
-;~		ja	@@1
+;~		ja	.1
 ;~		sub	al,20h
-;~@@1:
+;~.1:
 ;~		ret
 ;~		;~endp
 ;~endif
@@ -1404,14 +1404,14 @@ rep_prefixes:
 ;-----------------------------------------------------------------------------
 _r_m16:
 		cmp	bx,0100h
-		jne	@@quit
+		jne	.quit
 		cmp	cl,-1
-		je	@@quit
+		je	.quit
 		test	cl,1000b
-		jz	@@quit
+		jz	.quit
 		mov	byte [lxx_flag],1
 		jmp	_r_rm2
-@@quit:
+.quit:
 		or	sp,sp
 		ret
 ;=============================================================================
@@ -1428,16 +1428,16 @@ _r_rm2:
 		je	..@_r_rm_r_m
 		or	bx,bx
 		jne	..@_r_rm_q
-@@r_r:
+.r_r:
 		cmp	cl,-1
 		je	..@_r_rm_q
 		cmp	ch,-1
 		je	..@_r_rm_q
 		mov	byte [di],2
 		cmp	byte [lxx_flag],1
-		je	@@l1
+		je	.l1
 		call	add_word_flag
-@@l1:
+.l1:
 		mov	[di+1],al
 		call	make_modrm
 ;;		mov	al,cl
@@ -1462,11 +1462,11 @@ exit_zf_clear:
 ..@_r_rm_m_r:
 		cmp	ch,-1
 		je	..@_r_rm_q
-@@make_modrm:
+.make_modrm:
 		cmp	byte [lxx_flag],1
-		je	@@l2
+		je	.l2
 		call	add_word_flag
-@@l2:
+.l2:
 		mov	[di+1],al
 
 		call	make_modrm
@@ -1474,7 +1474,7 @@ exit_zf_clear:
 		mov	dx,[parameter_1+AP_VALUE]
 		add	ah,2
 		mov	[di],ah
-@@set_reg:
+.set_reg:
 		mov	[di+3],dx
 		mov	ah,[parameter_2+AP_REG_NUMBER]
 		and	ah,0111b
@@ -1489,40 +1489,40 @@ exit_zf_clear:
 		cmp	cl,-1
 		je	..@_r_rm_q
 		cmp	byte [lxx_flag],1
-		je	@@7
+		je	.7
 		or	al,2
-@@7:
+.7:
 		call	swap_parameters
 		xchg	cl,ch
-		jmp	@@make_modrm
+		jmp	.make_modrm
 ;=============================================================================
 ; _a_im
 ;-----------------------------------------------------------------------------
 _a_im:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		cmp	cl,0ffh
 		je	exit_zf_clear
 		and	cl,0111b
 		cmp	cl,regAL
-		jne	@@quit
+		jne	.quit
 		cmp	bh,0
-		jne	@@quit
+		jne	.quit
 		call	add_word_flag
 		mov	dx,[parameter_2+AP_VALUE]
 		or	ah,ah
-		jnz	@@1
+		jnz	.1
 		call	check_byte
-		jz	@@1
+		jz	.1
 		or	dh,dh
 		jnz	jump_to_big_num_error		;jump out of range
-@@1:
+.1:
 		add	ah,2
 		mov	[di],ah
 		mov	[di+1],al
 		mov	[di+2],dx
 		cmp	ax,ax
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _rm_im1
@@ -1535,17 +1535,17 @@ _rm_im1:
 ;-----------------------------------------------------------------------------
 _db:
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		or	bl,bl
-		jnz	@@quit
+		jnz	.quit
 		cmp	cl,-1
-		jne	@@quit
+		jne	.quit
 		mov	ax,[parameter_1+AP_VALUE]
 		or	ah,ah
 		jnz	jump_to_big_num_error		;jump out of range
 		mov	byte [di],1
 		mov	[di+1],al
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _rm_im
@@ -1554,25 +1554,25 @@ _rm_im:
 		mov	byte [mov_flag],0
 _rm_im2:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		cmp	ch,0ffh
-		jne	@@quit
+		jne	.quit
 		cmp	bx,0001h
-		je	@@m_i
+		je	.m_i
 		or	bx,bx
-		jnz	@@quit
-@@r_i:
+		jnz	.quit
+.r_i:
 		mov	ch,ah
 		call	add_word_flag
-		jmp	@@make
+		jmp	.make
 ..@_rm_im_ok:
 		cmp	ax,ax
-@@quit:
+.quit:
 		ret
-@@m_i:
+.m_i:
 		mov	ch,ah
 ;		or	al,1		;; WordFlag:=1
-@@make:
+.make:
 		mov	dx,[parameter_2+AP_VALUE]
 		mov	bl,[parameter_1+AP_WORD_FLAG]
 		mov	cl,4
@@ -1588,19 +1588,19 @@ jump_to_big_num_error:
 ..@byte_imm_2:
 		dec	cl
 		cmp	bl,2
-		jb	@@byte
+		jb	.byte
 		inc	cl
 		or	al,1
 		jmp	..@word_imm
 ..@byte_imm:
 		dec	cl
 		cmp	bl,2
-		jb	@@byte
+		jb	.byte
 		or	al,3
 		cmp	byte [mov_flag],0
-		je	@@byte
+		je	.byte
 		inc	cl
-@@byte:
+.byte:
 ..@word_imm:
 		mov	[di+1],al
 		call	make_modrm	; al=md000r/m, ah=size of offset(0,1,2)
@@ -1622,14 +1622,14 @@ jump_to_big_num_error:
 ;-----------------------------------------------------------------------------
 _esc:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		or	bl,bl
-		jnz	@@quit
+		jnz	.quit
 		cmp	cl,-1
-		jne	@@quit
+		jne	.quit
 		mov	bl,ch
 		cmp	bx,00ffh
-		je	@@quit
+		je	.quit
 		xchg	cl,ch
 		call	swap_parameters
 		call	make_modrm
@@ -1650,7 +1650,7 @@ _esc:
 		mov	[di+3],dx
 		cmp	ax,ax
 		ret
-@@quit:
+.quit:
 		or	sp,sp
 		ret
 ;=============================================================================
@@ -1658,104 +1658,104 @@ _esc:
 ;-----------------------------------------------------------------------------
 _a_mem:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		cmp	bx,0001h
-		je	@@m_a
+		je	.m_a
 		cmp	bx,0100h
-		jne	@@quit
+		jne	.quit
 		and	cl,0111b
 		cmp	cl,regAL
-		jne	@@quit
+		jne	.quit
 		cmp	word [parameter_2+AP_BX_FLAG],0
-		jne	@@quit
+		jne	.quit
 		cmp	word [parameter_2+AP_SI_FLAG],0
-		jne	@@quit
+		jne	.quit
 		mov	dx,[parameter_2+AP_VALUE]
-@@make:
+.make:
 		call	add_word_flag
 		mov	[di+1],al
 		mov	byte [di],3
 		mov	[di+2],dx
 		cmp	ax,ax
 		ret
-@@m_a:
+.m_a:
 		and	ch,0111b
 		cmp	ch,regAL
-		jne	@@quit
+		jne	.quit
 		cmp	word [parameter_1+AP_BX_FLAG],0
-		jne	@@quit
+		jne	.quit
 		cmp	word [parameter_1+AP_SI_FLAG],0
-		jne	@@quit
+		jne	.quit
 		or	al,0010b
 		mov	dx,[parameter_1+AP_VALUE]
-		jmp	@@make
-@@quit:
+		jmp	.make
+.quit:
 		ret
 ;=============================================================================
 ; _r_im
 ;-----------------------------------------------------------------------------
 _r_im:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		or	bx,bx
-		jnz	@@not
+		jnz	.not
 		cmp	cl,-1
-		jz	@@not
+		jz	.not
 		cmp	ch,-1
-		jnz	@@not
+		jnz	.not
 		or	al,cl
 		mov	ah,3
 		mov	dx,[parameter_2+AP_VALUE]
 		test	al,1000b
-		jnz	@@word
+		jnz	.word
 		dec	ah
 		call	check_byte
-		jz	@@word
+		jz	.word
 		or	dh,dh
-		jz	@@word
+		jz	.word
 		jmp	big_num_error
-@@word:
+.word:
 		mov	[di],ah
 		mov	[di+1],al
 		mov	[di+2],dx
 		cmp	ax,ax
 		ret
-@@not:
+.not:
 		or	sp,sp
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _sr_rm
 ;-----------------------------------------------------------------------------
 _sr_rm:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		cmp	bx,0001h
-		je	@@m_r
+		je	.m_r
 		cmp	bx,0100h
-		je	@@r_m
+		je	.r_m
 		or	bx,bx
-		jnz	@@quit
-@@r_r:
+		jnz	.quit
+.r_r:
 		cmp	cl,-1
-		je	@@quit
+		je	.quit
 		cmp	ch,-1
-		je	@@quit
+		je	.quit
 		cmp	cl,10h
-		jae	@@5
+		jae	.5
 		cmp	ch,10h
-		jae	@@m_s
-		jmp	@@quit
-@@5:
+		jae	.m_s
+		jmp	.quit
+.5:
 		cmp	ch,10h
-		jb	@@s_m
+		jb	.s_m
 		jmp	wrong_param
-@@m_r:
+.m_r:
 		cmp	ch,-1
-		je	@@quit
+		je	.quit
 		cmp	ch,10h
-		jb	@@quit
-@@m_s:
+		jb	.quit
+.m_s:
 		mov	[di+1],al
 		call	make_modrm
 		add	ah,2
@@ -1772,17 +1772,17 @@ _sr_rm:
 		cmp	ax,ax
 		ret
 
-@@r_m:
+.r_m:
 		cmp	cl,-1
-		je	@@quit
+		je	.quit
 		cmp	cl,10h
-		jb	@@quit
-@@s_m:
+		jb	.quit
+.s_m:
 		or	al,2
 		xchg	cl,ch
 		call	swap_parameters
-		jmp	@@m_s
-@@quit:
+		jmp	.m_s
+.quit:
 		or	sp,sp
 		ret
 ;=============================================================================
@@ -1790,12 +1790,12 @@ _sr_rm:
 ;-----------------------------------------------------------------------------
 _rm:
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		cmp	bl,1
-		je	@@m
+		je	.m
 		cmp	cl,-1
-		je	@@quit
-@@m:
+		je	.quit
+.m:
 		mov	ch,ah
 		call	add_word_flag
 		mov	[di+1],al
@@ -1811,7 +1811,7 @@ _rm:
 		mov	[di+3],ax
 		cmp	ax,ax
 		ret
-@@quit:
+.quit:
 		or	sp,sp
 		ret
 ;=============================================================================
@@ -1819,26 +1819,26 @@ _rm:
 ;-----------------------------------------------------------------------------
 _a_reg:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		or	bx,bx
-		jnz	@@quit
+		jnz	.quit
 		cmp	cl,regAX
-		je	@@a_r
+		je	.a_r
 		cmp	ch,regAX
-		je	@@r_a
-@@quit:
+		je	.r_a
+.quit:
 		call	swap_parameters	;; Only for XCHG
 		or	sp,sp
 		ret
-@@a_r:
+.a_r:
 		cmp	ch,-1
-		je	@@quit
-		jmp	@@ax_r
-@@r_a:
+		je	.quit
+		jmp	.ax_r
+.r_a:
 		cmp	cl,-1
-		je	@@quit
+		je	.quit
 		xchg	cl,ch
-@@ax_r:
+.ax_r:
 		and	ch,0111b
 		or	al,ch
 		mov	byte [di],1
@@ -1850,18 +1850,18 @@ _a_reg:
 ;-----------------------------------------------------------------------------
 _reg16:
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		cmp	cl,-1
-		je	@@quit
+		je	.quit
 		test	cl,1000b
-		jz	@@quit
+		jz	.quit
 		and	cl,0111b
 		or	al,cl
 		mov	byte [di],1
 		mov	[di+1],al
 		cmp	sp,sp
 		ret
-@@quit:
+.quit:
 		or	sp,sp
 		ret
 ;=============================================================================
@@ -1869,11 +1869,11 @@ _reg16:
 ;-----------------------------------------------------------------------------
 _sreg:
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		cmp	cl,-1
-		je	@@quit
+		je	.quit
 		cmp	cl,10h
-		jb	@@quit
+		jb	.quit
 		and	cl,0111b
 		shl	cl,1
 		shl	cl,1
@@ -1883,7 +1883,7 @@ _sreg:
 		mov	[di+1],al
 		cmp	ax,ax
 		ret
-@@quit:
+.quit:
 		or	sp,sp
 		ret
 ;=============================================================================
@@ -1891,18 +1891,18 @@ _sreg:
 ;-----------------------------------------------------------------------------
 _rm_cl_1:
 		cmp	bh,1
-		je	@@quit
+		je	.quit
 		cmp	ch,-1
-		je	@@check_1
+		je	.check_1
 		cmp	ch,regCL
-		jne	@@quit
+		jne	.quit
 		mov	cl,10b
-		jmp	@@make
-@@check_1:
+		jmp	.make
+.check_1:
 		cmp	word [parameter_2+AP_VALUE],1
-		jne	@@quit
+		jne	.quit
 		mov	cl,0
-@@make:
+.make:
 		mov	ch,ah
 		call	add_word_flag
 		or	al,cl
@@ -1920,7 +1920,7 @@ _rm_cl_1:
 		mov	[di+3],dx
 		cmp	ax,ax
 		ret
-@@quit:
+.quit:
 		or	sp,sp
 		ret
 ;=============================================================================
@@ -1928,154 +1928,154 @@ _rm_cl_1:
 ;-----------------------------------------------------------------------------
 _im8ch3:
 		call	_im8
-		jnz	@@quit
+		jnz	.quit
 		cmp	byte [di+2],3
-		jne	@@quit_1
+		jne	.quit_1
 		mov	word [di],0cc01h
-@@quit_1:
+.quit_1:
 		cmp	ax,ax
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _im8
 ;-----------------------------------------------------------------------------
 _im8:
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		cmp	bl,0
-		jne	@@quit
+		jne	.quit
 		cmp	cl,-1
-		jne	@@quit
+		jne	.quit
 		mov	dx,[parameter_1+AP_VALUE]
 		cmp	dh,0
-		jnz	@@quit
+		jnz	.quit
 		mov	byte [di],2
 		mov	[di+1],al
 		mov	[di+2],dl
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _im16
 ;-----------------------------------------------------------------------------
 _im16:
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		cmp	bl,0
-		jne	@@quit
+		jne	.quit
 		cmp	cl,-1
-		jne	@@quit
+		jne	.quit
 		mov	dx,[parameter_1+AP_VALUE]
 		mov	byte [di],3
 		mov	[di+1],al
 		mov	[di+2],dx
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _imn
 ;-----------------------------------------------------------------------------
 _imn:
 		cmp	byte [param_count],0
-		jne	@@quit
+		jne	.quit
 		mov	byte [di],2
 		mov	[di+1],ax
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _a_dx
 ;-----------------------------------------------------------------------------
 _a_dx:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		test	cl,1000b
-		jz	@@1
+		jz	.1
 		or	al,1
-@@1:
+.1:
 		and	cl,0111b
 		cmp	cx,regAL + (regDX << 8)
-		jne	@@quit
+		jne	.quit
 		mov	byte [di],1
 		mov	[di+1],al
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _dx_a
 ;-----------------------------------------------------------------------------
 _dx_a:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		test	ch,1000b
-		jz	@@1
+		jz	.1
 		or	al,1
-@@1:
+.1:
 		and	ch,0111b
 		cmp	cx,regDX + (regAL << 8)
-		jne	@@quit
+		jne	.quit
 		mov	byte [di],1
 		mov	[di+1],al
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _a_im8
 ;-----------------------------------------------------------------------------
 _a_im8:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		or	bx,bx
-		jnz	@@quit
+		jnz	.quit
 		cmp	ch,-1
-		jne	@@quit
+		jne	.quit
 		test	cl,1000b
-		jz	@@1
+		jz	.1
 		or	al,1
-@@1:
+.1:
 		and	cl,0111b
 		cmp	cl,regAL
-		jne	@@quit
+		jne	.quit
 		mov	dx,[parameter_2+AP_VALUE]
 		or	dh,dh
-		jnz	@@quit
+		jnz	.quit
 		mov	byte [di],2
 		mov	[di+1],al
 		mov	[di+2],dl
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _im8_a
 ;-----------------------------------------------------------------------------
 _im8_a:
 		cmp	byte [param_count],2
-		jne	@@quit
+		jne	.quit
 		or	bx,bx
-		jnz	@@quit
+		jnz	.quit
 		cmp	cl,-1
-		jne	@@quit
+		jne	.quit
 		test	ch,1000b
-		jz	@@1
+		jz	.1
 		or	al,1
-@@1:
+.1:
 		and	ch,0111b
 		cmp	ch,regAL
-		jne	@@quit
+		jne	.quit
 		mov	dx,[parameter_1+AP_VALUE]
 		or	dh,dh
-		jnz	@@quit
+		jnz	.quit
 		mov	byte [di],2
 		mov	[di+1],al
 		mov	[di+2],dl
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _short
 ;-----------------------------------------------------------------------------
 _short:
 		cmp	byte [jump_flag],1
-		jne	@@quit
+		jne	.quit
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		or	bl,bl
-		jnz	@@quit
+		jnz	.quit
 		cmp	cl,-1
-		jnz	@@quit
+		jnz	.quit
 		mov	dx,[parameter_1+AP_VALUE]
 
 ;		sub	dx,asm_offs
@@ -2083,24 +2083,24 @@ _short:
 
 		sub	dx,2
 		call	check_byte
-		jnz	@@quit
+		jnz	.quit
 		mov	byte [di],2
 		mov	[di+1],al
 		mov	[di+2],dl
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _near
 ;-----------------------------------------------------------------------------
 _near:
 		cmp	byte [jump_flag],1
-		jne	@@quit
+		jne	.quit
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		or	bl,bl
-		jnz	@@quit
+		jnz	.quit
 		cmp	cl,-1
-		jnz	@@quit
+		jnz	.quit
 		mov	dx,[parameter_1+AP_VALUE]
 
 ;		sub	dx,asm_offs
@@ -2111,23 +2111,23 @@ _near:
 		mov	[di+1],al
 		mov	[di+2],dx
 		cmp	ax,ax
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _far
 ;-----------------------------------------------------------------------------
 _far:
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		cmp	byte [jump_flag],2
-		jne	@@quit
+		jne	.quit
 		mov	dx,[parameter_1+AP_VALUE]
 		mov	cx,[far_value]
 		mov	byte [di],5
 		mov	[di+1],al
 		mov	[di+2],cx
 		mov	[di+4],dx
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _rmj
@@ -2143,25 +2143,25 @@ loc_rm:
 ;-----------------------------------------------------------------------------
 _dw:
 		cmp	byte [param_count],1
-		jne	@@quit
+		jne	.quit
 		or	bl,bl
-		jnz	@@quit
+		jnz	.quit
 		cmp	cl,-1
-		jne	@@quit
+		jne	.quit
 		mov	ax,[parameter_1+AP_VALUE]
 		mov	byte [di],2
 		mov	[di+1],ax
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; _noparam
 ;-----------------------------------------------------------------------------
 _noparam:
 		cmp	byte [param_count],0
-		jne	@@quit
+		jne	.quit
 		mov	byte [di],1
 		mov	[di+1],al
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; add_word_flag
@@ -2169,18 +2169,18 @@ _noparam:
 add_word_flag:
 		mov	ah,[parameter_1+AP_WORD_FLAG]
 		or	ah,ah
-		jz	@@2
-@@1:
+		jz	.2
+.1:
 		dec	ah
 		or	al,ah
 		ret
-@@2:
+.2:
 		cmp	byte [param_count],1
-		jbe	@@3
+		jbe	.3
 		mov	ah,[parameter_2+AP_WORD_FLAG]
 		or	ah,ah
-		jnz	@@1
-@@3:
+		jnz	.1
+.3:
 		ret
 ;=============================================================================
 ; swap_parameters
@@ -2193,12 +2193,12 @@ swap_parameters:
 		mov	si,parameter_1
 		mov	di,parameter_2
 		mov	cx,SIZEOF_ASM_PARAM
-@@next:
+.next:
 		lodsb
 		xchg	al,[es:di]
 		mov	[si-1],al
 		inc	di
-		loop	@@next
+		loop	.next
 		pop	di
 		pop	si
 		pop	cx
@@ -2225,7 +2225,7 @@ make_modrm:
 		push	dx
 		mov	al,[parameter_1+AP_REG_NUMBER]
 		cmp	al,-1
-		je	@@mem
+		je	.mem
 		and	al,0111b
 		or	al,11000000b
 ;;		and	ch,0111b
@@ -2234,69 +2234,69 @@ make_modrm:
 ;		shl	ch,1
 ;		or	al,ch
 		mov	ah,0
-		jmp	@@ok
-@@mem:
+		jmp	.ok
+.mem:
 		cmp	byte [parameter_1+AP_MEM_FLAG],0
-		je	@@error
-@@make_modrm:
+		je	.error
+.make_modrm:
 		mov	bx,[parameter_1+AP_BX_FLAG]
 		mov	cx,[parameter_1+AP_SI_FLAG]
 		mov	dx,[parameter_1+AP_VALUE]
 		push	bx
 		or	bx,cx
 		pop	bx
-		jz	@@no_base_index
+		jz	.no_base_index
 		or	bx,bx
-		jz	@@no_base
+		jz	.no_base
 		or	cx,cx
-		jz	@@no_index
+		jz	.no_index
 		mov	al,bh
 		add	al,bh
 		add	al,ch
-		jmp	@@make_mod
-@@no_base:
+		jmp	.make_mod
+.no_base:
 		mov	al,4
 		add	al,ch
-		jmp	@@make_mod
-@@no_index:
+		jmp	.make_mod
+.no_index:
 		mov	al,6
 		add	al,bl
 		cmp	bh,1
-		jne	@@make_mod
+		jne	.make_mod
 		mov	bl,2
-		jmp	@@ch_byte
-@@no_base_index:
+		jmp	.ch_byte
+.no_base_index:
 		mov	al,0110b
 		mov	ah,2
-		jmp	@@ok
-@@make_mod:
+		jmp	.ok
+.make_mod:
 		mov	bl,2
 		or	dx,dx
-		jz	@@no_offs
-@@ch_byte:
+		jz	.no_offs
+.ch_byte:
 		call	check_byte
-		jz	@@byte_offs
-@@word_offs:
+		jz	.byte_offs
+.word_offs:
 		inc	bl
-@@byte_offs:
+.byte_offs:
 		inc	bl
-@@no_offs:
+.no_offs:
 		mov	[di],bl
 		sub	bl,2
 		mov	ah,bl
 		ror	bl,1
 		ror	bl,1
 		or	al,bl
-@@ok:
+.ok:
 		clc
-@@quit:
+.quit:
 		pop	dx
 		pop	cx
 		pop	bx
 		ret
-@@error:
+.error:
 		stc
-		jmp	@@quit
+		jmp	.quit
 ;=============================================================================
 
 pref_codes	db	26h, 2Eh, 36h, 3Eh

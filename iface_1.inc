@@ -58,11 +58,11 @@ show_help:
 		call	show_help_page
 		call	read_key
 		cmp	ax,kbF1
-		jne	@@quit
+		jne	.quit
 		mov	si,help_page2
 		call	show_help_page
 		call	read_key
-@@quit:
+.quit:
 		call	draw_screen
 		call	popr
 		ret
@@ -86,37 +86,37 @@ show_help_page:
 ;-----------------------------------------------------------------------------
 any_key:
 		call	check_shift
-		jz	@@check_cheat_code
+		jz	.check_cheat_code
 		mov	cx,EDIT_PROCS_NUM
 		mov	bx,edit_procs
-@@next:
+.next:
 		cmp	[bx],ah
-		jne	@@skip
+		jne	.skip
 		call	[bx+1]
 		clc
 		ret
-@@skip:
+.skip:
 		add	bx,3
-		loop	@@next
+		loop	.next
 
-@@exit:
+.exit:
 		stc
 		ret
 
-@@check_cheat_code:
+.check_cheat_code:
 		call	upcase
 		xor	al,45h
 		mov	bx,[magic_offs]
 		cmp	[magic_code+bx],al
-		je	@@next_char
+		je	.next_char
 		xor	bx,bx
 		cmp	[magic_code],al
-		jne	@@exit
-@@next_char:
+		jne	.exit
+.next_char:
 		inc	bx
 		mov	[magic_offs],bx
 		cmp	bl,5
-		jne	@@exit
+		jne	.exit
 		mov	si,info_dialog
 		call	_about
 		clc
@@ -127,25 +127,25 @@ any_key:
 data_watch:
 		cmp	word [data_watch_proc],0
 		mov	word [data_watch_proc],0
-		jne	@@update_watch
+		jne	.update_watch
 		mov	ax,[data_watch_temp]
 		or	ax,ax
-		jnz	@@on
+		jnz	.on
 		jmp	beep
 
-@@on:
+.on:
 		mov	[data_watch_proc],ax
 		call	ax
-@@update_watch:
+.update_watch:
 		jmp	update_watch_label
 ;=============================================================================
 ; switch_reg_mode
 ;-----------------------------------------------------------------------------
 switch_reg_mode:
 		cmp	byte [system_cpu],3
-		jae	@@toggle
+		jae	.toggle
 		jmp	beep
-@@toggle:
+.toggle:
 		call	pushr
 		xor	byte [regs_mode],1
 		xor	word [regs_menu_1],'16' ^ '32'
@@ -161,58 +161,58 @@ switch_reg_mode:
 ;-----------------------------------------------------------------------------
 cur_down:
 		cmp	word [cur_line],CPU_HEIGHT-1
-		jb	@@inc
+		jb	.inc
 		mov	si,[cur_ip]
 		call	unassemble
 		mov	[cur_ip],si
-		jmp	@@quit
-@@inc:
+		jmp	.quit
+.inc:
 		inc	word [cur_line]
-@@quit:
+.quit:
 		jmp	update_commands
 ;=============================================================================
 ; cur_up
 ;-----------------------------------------------------------------------------
 cur_up:
 		cmp	word [cur_line],0
-		ja	@@dec
+		ja	.dec
 		cmp	word [cur_ip],0
-		je	@@quit
-		mov	word [@@c],20		;???
-@@next_1:
+		je	.quit
+		mov	word [.c],20		;???
+.next_1:
 		mov	si,[cur_ip]
-		sub	si,[@@c]
-		jnc	@@next
+		sub	si,[.c]
+		jnc	.next
 		xor	si,si
-@@next:
+.next:
 		mov	bp,si
 		call	unassemble
 		cmp	si,[cur_ip]
-		je	@@found
+		je	.found
 		cmp	si,[cur_ip]
-		jb	@@next
-		dec	word [@@c]
-		jnz	@@next_1
+		jb	.next
+		dec	word [.c]
+		jnz	.next_1
 		dec	word [cur_ip]
-		jmp	@@quit
-@@found:
+		jmp	.quit
+.found:
 		mov	[cur_ip],bp
-		jmp	@@quit
-@@dec:
+		jmp	.quit
+.dec:
 		dec	word [cur_line]
-@@quit:
+.quit:
 		jmp	update_commands
 
-@@c		dw	20
+.c		dw	20
 ;=============================================================================
 ; page_down
 ;-----------------------------------------------------------------------------
 page_down:
 		mov	si,[cur_ip]
 		mov	cx,CPU_HEIGHT-1
-@@next:
+.next:
 		call	unassemble
-		loop	@@next
+		loop	.next
 
 		mov	[cur_ip],si
 		jmp	update_commands
@@ -224,20 +224,20 @@ page_up:
 		or	si,si
 		je	cur_home
 		sub	si,5*CPU_HEIGHT
-		jnc	@@3
+		jnc	.3
 		xor	si,si
-@@3:
+.3:
 		mov	cx,CPU_HEIGHT-1
 		xor	bx,bx
-@@next:
+.next:
 		mov	[instr_table+bx],si
 		call	unassemble
 		inc	bx
 		inc	bx
-		loop	@@next
-@@2:
+		loop	.next
+.2:
 		cmp	si,[cur_ip]
-		jae	@@found
+		jae	.found
 		mov	cx,CPU_HEIGHT-2
 		cld
 		push	si
@@ -249,8 +249,8 @@ page_up:
 		mov	ax,si
 		stosw
 		call	unassemble
-		jmp	@@2
-@@found:
+		jmp	.2
+.found:
 		mov	si,[instr_table]
 		mov	[cur_ip],si
 		jmp	update_commands
@@ -271,20 +271,20 @@ cur_end:
 ;-----------------------------------------------------------------------------
 cur_right:
 		cmp	word [cur_x],MAX_CUR_X
-		jae	@@quit
+		jae	.quit
 		inc	word [cur_x]
 		call	update_commands
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; cur_left
 ;-----------------------------------------------------------------------------
 cur_left:
 		cmp	word [cur_x],0
-		je	@@quit
+		je	.quit
 		dec	word [cur_x]
 		call	update_commands
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; go_to_origin
@@ -310,10 +310,10 @@ new_csip:
 ;-----------------------------------------------------------------------------
 byte_up:
 		cmp	word [cur_ip],0
-		je	@@quit
+		je	.quit
 		dec	word [cur_ip]
 		call	update_commands
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; byte_down
@@ -359,21 +359,21 @@ unasm_go_to:
 		mov	ax,9*256+44
 		mov	di,main_addr_string
 		call	read_address
-		jc	@@quit
+		jc	.quit
 
 		call	push_unasm_pos
 
 		or	ch,ch
-		jz	@@no_seg
+		jz	.no_seg
 		mov	[unasm_seg],dx
 		cmp	ch,2
-		je	@@no_offs
-@@no_seg:
+		je	.no_offs
+.no_seg:
 		mov	[cur_ip],ax
-@@no_offs:
+.no_offs:
 		mov	word [cur_line],0
 		call	update_commands
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; read_address
@@ -392,22 +392,22 @@ read_address:
 		mov	[si+2],ax
 		call	init_dialog
 
-@@again:
+.again:
 		call	exec_dialog
-		jz	@@error_exit
+		jz	.error_exit
 
 		mov	si,[d_addr_str]
 		call	get_address
-		jc	@@again
+		jc	.again
 
 		call	draw_screen
 		clc
-		jmp	@@exit
+		jmp	.exit
 
-@@error_exit:
+.error_exit:
 		call	draw_screen
 		stc
-@@exit:
+.exit:
 		pop	es
 		pop	bp
 		pop	di
@@ -420,32 +420,32 @@ get_address_ds:
 		push	ds
 		pop	es
 		call	get_address
-		jc	@@exit
+		jc	.exit
 
 		mov	bx,[cpu_regs+REG_DS]
 		cmp	ch,1
-		je	@@exit
+		je	.exit
 		cmp	ch,0
-		je	@@def_seg
+		je	.def_seg
 		xor	ax,ax
-		jmp	@@exit
+		jmp	.exit
 
-@@def_seg:
+.def_seg:
 		mov	dx,bx
 
-@@exit:
+.exit:
 		ret
 ;=============================================================================
 ; get_address
 ;-----------------------------------------------------------------------------
 get_address:
 		call	get_address_
-		jnc	@@exit
+		jnc	.exit
 
 		mov	si,addr_error_msg
 		call	_error_message
 		stc
-@@exit:
+.exit:
 		mov	si,addr_dialog
 		ret
 ;=============================================================================
@@ -455,74 +455,74 @@ get_address_:
 		xor	bp,bp
 		xor	dx,dx
 		xor	cx,cx
-		mov	[@@op],cl
+		mov	[.op],cl
 
-@@next:
+.next:
 		lodsb
 		cmp	al,' '
-		je	@@next
+		je	.next
 		dec	si
 		cmp	al,0
-		je	@@done_1
+		je	.done_1
 		call	get_reg_value
-		je	@@do_oper
+		je	.do_oper
 		call	get_hex_value
-		jc	@@error
+		jc	.error
 
-@@do_oper:
-		cmp	byte [@@op],'-'
-		jne	@@plus
+.do_oper:
+		cmp	byte [.op],'-'
+		jne	.plus
 		neg	bx
 
-@@plus:
+.plus:
 		add	bp,bx
-		mov	byte [@@op],0
+		mov	byte [.op],0
 
-@@skip:
+.skip:
 		lodsb
 		cmp	al,' '
-		je	@@skip
+		je	.skip
 		cmp	al,0
-		je	@@done
+		je	.done
 		cmp	al,':'
-		je	@@seg
+		je	.seg
 		cmp	al,'+'
-		je	@@p
+		je	.p
 		cmp	al,'-'
-		jne	@@error
+		jne	.error
 
-@@p:
-		mov	[@@op],al
-		jmp	@@next
+.p:
+		mov	[.op],al
+		jmp	.next
 
-@@seg:
+.seg:
 		or	cl,cl
-		jne	@@error
+		jne	.error
 		inc	cx
 		mov	dx,bp
 		xor	bp,bp
-		jmp	@@next
+		jmp	.next
 
-@@done_1:
-		cmp	byte [@@op],0
-		jne	@@error
+.done_1:
+		cmp	byte [.op],0
+		jne	.error
 		cmp	cx,1
-		jne	@@ok
+		jne	.ok
 		inc	cx
-@@ok:
+.ok:
 		clc
-		jmp	@@done
+		jmp	.done
 
-@@error:
-@@error_exit:
+.error:
+.error_exit:
 		stc
 
-@@done:
+.done:
 		mov	ax,bp
 		mov	ch,cl
 		ret
 
-@@op		db	0
+.op		db	0
 ;=============================================================================
 ; get_reg_value
 ;-----------------------------------------------------------------------------
@@ -537,25 +537,25 @@ get_reg_value:
 		call	upcase
 		mov	cx,16
 	repne	scasw
-		jne	@@not
+		jne	.not
 		cmp	ax,'GS'
-		je	@@check_386
+		je	.check_386
 		cmp	ax,'FS'
-		je	@@check_386
-@@get_value:
+		je	.check_386
+.get_value:
 		lodsw
 		sub	di,rreg+2
 		shl	di,1
 		mov	bx,[cpu_regs+di]
 		cmp	ax,ax
-@@not:
+.not:
 		pop	cx
 		pop	ax
 		ret
-@@check_386:
+.check_386:
 		cmp	byte [system_cpu],3
-		jb	@@not
-		jmp	@@get_value
+		jb	.not
+		jmp	.get_value
 ;=============================================================================
 ; get_hex_value
 ;-----------------------------------------------------------------------------
@@ -566,19 +566,19 @@ get_hex_value:
 		xor	bx,bx
 		mov	al,[si]
 		call	ascii_to_bin
-		jc	@@not
-@@set:
+		jc	.not
+.set:
 		test	bh,0f0h
 		stc
-		jnz	@@not
+		jnz	.not
 		shl	bx,cl
 		or	bl,al
 		inc	si
 		mov	al,[si]
 		call	ascii_to_bin
-		jnc	@@set
+		jnc	.set
 		clc
-@@not:
+.not:
 		pop	cx
 		pop	ax
 		ret
@@ -588,13 +588,13 @@ get_hex_value:
 get_counter:
 		mov	si,count_string
 		call	get_address_
-		jc	@@error
+		jc	.error
 		cmp	ch,0
-		jne	@@error
+		jne	.error
 		mov	[count_value],ax
 		clc
 		ret
-@@error:
+.error:
 		mov	si,count_error_msg
 		call	_error_message
 		stc
@@ -605,13 +605,13 @@ get_counter:
 get_delay:
 		mov	si,delay_string
 		call	get_address_
-		jc	@@error
+		jc	.error
 		cmp	ch,0
-		jne	@@error
+		jne	.error
 		mov	[delay_value],ax
 		clc
 		ret
-@@error:
+.error:
 		mov	si,count_error_msg
 		call	_error_message
 		stc
@@ -714,12 +714,12 @@ make_environment:
 		mov	al,0
 		cld
 		mov	cx,-1
-@@again:
+.again:
 	repne	scasb
-		jne	@@error
+		jne	.error
 		dec	cx
 		scasb
-		jne	@@again
+		jne	.again
 		not	cx
 		mov	bx,cx
 		add	bx,30
@@ -729,7 +729,7 @@ make_environment:
 		shr	bx,1
 		mov	ah,48h
 		int	21h
-		jc	@@error
+		jc	.error
 		push	es
 		pop	ds
 		mov	es,ax
@@ -741,12 +741,12 @@ make_environment:
 		mov	si,env_name
 		push	cs
 		pop	ds
-@@next:
+.next:
 		lodsb
 		stosb
 		cmp	al,0
-		jne	@@next
-@@error:
+		jne	.next
+.error:
 		ret
 ;=============================================================================
 ; load_program
@@ -760,15 +760,15 @@ load_program:
 		mov	bx,epb
 		mov	ax,4b01h
 		int	21h
-		jc	@@quit
+		jc	.quit
 		mov	ax,[user_ss]
 		mov	[cpu_regs+REG_SS],ax
 		mov	ax,[user_sp]
 		cmp	ax,0fffeh
-		jae	@@001
+		jae	.001
 		inc	ax
 		inc	ax
-@@001:
+.001:
 		mov	[cpu_regs+REG_SP],ax
 		mov	ax,[user_cs]
 		mov	[cpu_regs+REG_CS],ax
@@ -798,7 +798,7 @@ load_program:
 		call	init_registers
 		mov	al,[my_port_21]
 		mov	[user_port_21],al
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 
@@ -843,21 +843,21 @@ init_registers:
 read_cmd_line:
 		call	pushr
 		cmp	byte [file_specified],0
-		jne	@@1
+		jne	.1
 		mov	si,no_specif_msg
 		call	_error_message
-		jmp	@@quit
-@@1:
+		jmp	.quit
+.1:
 		mov	si,arg_dialog
 		call	init_dialog
 		call	exec_dialog
 		call	draw_screen
 		or	ax,ax
-		jz	@@quit
+		jz	.quit
 		call	set_command_line
 		call	popr
 		jmp	reset_program
-@@quit:
+.quit:
 		call	popr
 		ret
 ;=============================================================================
@@ -890,12 +890,12 @@ load_file:
 		call	_check_shared_area
 
 		or	ax,ax
-		je	@@quit
+		je	.quit
 		call	full_prog_name
 		mov	byte [file_specified],1
 		jmp	reset_program
 
-@@quit:
+.quit:
 		ret
 ;=============================================================================
 ; full_prog_name
@@ -918,14 +918,14 @@ init_file_list:
 		call	init_string_list
 		mov	ah,4eh
 		mov	cx,27h		;!!!
-@@find_next:
+.find_next:
 		int	21h
-		jc	@@end
+		jc	.end
 		mov	si,9eh
 		call	add_string
 		mov	ah,4fh
-		jmp	@@find_next
-@@end:
+		jmp	.find_next
+.end:
 		call	set_user_pid
 		call	restore_dta
 		call	popr
@@ -936,15 +936,15 @@ init_file_list:
 reset_program:
 		call	pushr
 		cmp	byte [file_specified],0
-		je	@@no_spec
+		je	.no_spec
 		call	unload_program
 		call	load_program
-		jnc	@@next
+		jnc	.next
 		mov	si,load_error_msg
 		call	_error_message
 		call	create_program
 		mov	byte [file_specified],0
-@@next:
+.next:
 		mov	ax,[cpu_regs+REG_IP]	;0leg, 2007-03-25
 		mov	[cur_ip],ax		;Set initial addresses
 		mov	ax,[cpu_regs+REG_CS]	;for Code and Dump windows
@@ -957,13 +957,13 @@ reset_program:
 		call	set_user_pid
 		call	set_term_handler
 		call	update_screen
-@@quit:
+.quit:
 		call	popr
 		ret
-@@no_spec:
+.no_spec:
 		mov	si,no_specif_msg
 		call	_error_message
-		jmp	@@quit
+		jmp	.quit
 ;=============================================================================
 ; new_program
 ;-----------------------------------------------------------------------------
@@ -1040,7 +1040,7 @@ unload_program:
 		call	set_user_pid
 		mov	es,[user_pid]
 		mov	[es:0ch],cs
-		mov	ax,@@1
+		mov	ax,.1
 		mov	[es:0ah],ax
 		pushf
 		push	cs
@@ -1058,7 +1058,7 @@ unload_program:
 		mov	[30h],ss
 		mov	ax,4c00h
 		int	21h
-@@1:
+.1:
 		push	cs
 		pop	ds
 		push	cs
@@ -1119,13 +1119,13 @@ term_handler:
 		int	21h
 		add	ah,'0'
 		mov	[term_method],ah
-@@loop99:
+.loop99:
 		dec	di
 		aam			;AH = AL / 10;  AL = AL % 10
 		add	[di],al
 		xchg	al,ah
 		or	al,al
-		jnz	@@loop99
+		jnz	.loop99
 ;-----------------------------------------------------------------------------
 		mov	si,terminate_msg
 		call	_msg_box

@@ -35,55 +35,55 @@ search_bytes:
 		mov	si,search_dialog
 		call	init_dialog
 
-@@again_:
+.again_:
 		mov	byte [search_dlg_item],0
 
-@@again:
+.again:
 		call	exec_dialog_
 		or	ax,ax
-		jz	@@error_exit
+		jz	.error_exit
 
 		mov	si,search_string
 		mov	di,search_bin
 		call	create_bin
-		jc	@@string_error
+		jc	.string_error
 
 		sub	di,search_bin
-		jz	@@error_exit
+		jz	.error_exit
 
-@@check_address:
+.check_address:
 		push	di
 		mov	si,search_addr_str
 		call	get_address
 		pop	bx
 		mov	byte [search_dlg_item],2
-		jc	@@again
+		jc	.again
 
 		mov	[search_len],bx
 
 		mov	bx,[dump_seg]
 		test	word [search_options],SRCH_RES_CODE
-		jz	@@def_seg
+		jz	.def_seg
 		mov	bx,[unasm_seg]
 
-@@def_seg:
+.def_seg:
 		cmp	ch,0
-		je	@@search
+		je	.search
 		cmp	ch,1
-		je	@@set_seg
+		je	.set_seg
 		xor	ax,ax
 
-@@set_seg:
+.set_seg:
 		mov	bx,dx
 
-@@search:
+.search:
 		mov	dx,bx
 		call	linear_address
 		test	word [search_options],SRCH_EXCL_HMA
-		jz	@@set_search_pos
+		jz	.set_search_pos
 		and	dl,0fh
 
-@@set_search_pos:
+.set_search_pos:
 		mov	[search_offs],ax
 		mov	[search_seg],dx
 
@@ -93,22 +93,22 @@ search_bytes:
 		mov	ax,search_next
 		push	ax
 
-@@error_exit:
+.error_exit:
 		call	draw_screen
 
-@@exit:
+.exit:
 		ret
 
-@@string_error:
+.string_error:
 		mov	si,string_error_msg
 		call	_error_message
-		jmp	@@again_
+		jmp	.again_
 ;=============================================================================
 ; search_next
 ;-----------------------------------------------------------------------------
 search_next:
 		mov	cx,[search_len]
-		jcxz	@@not_found_msg
+		jcxz	.not_found_msg
 
 		mov	byte [exec_msg_type],1
 		mov	si,search_msg
@@ -117,28 +117,28 @@ search_next:
 		xor	ax,ax
 		cwd
 		test	word [search_options],SRCH_BACKWARD
-		jnz	@@start_search
+		jnz	.start_search
 		dec	dx
 		sub	ax,cx
 		test	word [search_options],SRCH_EXCL_HMA
-		jz	@@start_search
+		jz	.start_search
 		mov	dx,0f000h
 
-@@start_search:
+.start_search:
 		call	linear_address
 		xchg	[search_offs],ax
 		xchg	[search_seg],dx
 		xchg	ax,di
 		cld
 
-@@search_byte:
+.search_byte:
 		mov	si,search_bin
 		lodsb
 
-		call	@@compare
-		jne	@@next
-		call	@@compare_bytes
-		jne	@@next
+		call	.compare
+		jne	.next
+		call	.compare_bytes
+		jne	.next
 
 		push	dx
 		mov	ax,di
@@ -150,38 +150,38 @@ search_next:
 		call	adjust_address
 		cmp	dx,si
 		pop	dx
-		jne	@@found
+		jne	.found
 		cmp	ax,bx
-		jne	@@found
+		jne	.found
 
-@@next:
-		call	@@next_byte
-		jnc	@@search_byte
+.next:
+		call	.next_byte
+		jnc	.search_byte
 
-@@not_found:
-		call	@@close_window
+.not_found:
+		call	.close_window
 		mov	word [search_len],0
 
-@@not_found_msg:
+.not_found_msg:
 		mov	si,not_found_msg
 		jmp	_msg_box
 
-@@close_window:
+.close_window:
 		mov	byte [exec_msg_type],2
 		call	_msg_box
 		mov	byte [exec_msg_type],0
 		ret
 
-@@found:
-		call	@@close_window
+.found:
+		call	.close_window
 		push	di
 		push	dx
 
-		call	@@next_byte
-		jnc	@@set_new_pos
+		call	.next_byte
+		jnc	.set_new_pos
 		mov	word [search_len],0
 
-@@set_new_pos:
+.set_new_pos:
 		mov	[search_offs],di
 		mov	[search_seg],dx
 
@@ -191,53 +191,53 @@ search_next:
 		call	phisical_address
 
 		test	word [search_options],SRCH_RES_CODE
-		jz	@@set_dump
+		jz	.set_dump
 		mov	word [cur_line],0
 		mov	[cur_ip],ax
 		mov	[unasm_seg],dx
 		jmp	update_commands
 
-@@set_dump:
+.set_dump:
 		mov	[dump_offs],ax
 		mov	[dump_seg],dx
 		jmp	update_dump
 
-@@compare:
+.compare:
 		call	pushr
-		call	@@upcase
+		call	.upcase
 		xchg	ax,bx
 		xchg	ax,di
 		call	phisical_address
 		xchg	ax,di
 		mov	es,dx
 		mov	al,[es:di]
-		call	@@upcase
+		call	.upcase
 		cmp	al,bl
 		call	popr
 		ret
 
-@@compare_bytes:
+.compare_bytes:
 		call	pushr
 		dec	cx
-		jz	@@exit_1
+		jz	.exit_1
 
-@@next_char:
+.next_char:
 		lodsb
-		call	@@next_byte
-		call	@@compare
-		loope	@@next_char
-@@exit_1:
+		call	.next_byte
+		call	.compare
+		loope	.next_char
+.exit_1:
 		call	popr
 		ret
 
-@@upcase:
+.upcase:
 		test	word [search_options],SRCH_IGN_CASE
-		jz	@@exit
+		jz	.exit
 		jmp	upcase
 
-@@next_byte:
+.next_byte:
 		test	word [search_options],SRCH_BACKWARD
-		jnz	@@backward
+		jnz	.backward
 		add	di,1
 		adc	dx,0
 		mov	bx,[search_offs]
@@ -245,10 +245,10 @@ search_next:
 		sub	bx,di
 		sbb	bp,dx
 
-@@exit:
+.exit:
 		ret
 
-@@backward:
+.backward:
 		sub	di,1
 		sbb	dx,0
 		ret
@@ -273,11 +273,11 @@ linear_address:
 ;-----------------------------------------------------------------------------
 phisical_address:
 		cmp	dx,10h
-		jb	@@skip_hma
+		jb	.skip_hma
 		sub	ax,0fff0h
 		mov	dx,0ffffh
 		ret
-@@skip_hma:
+.skip_hma:
 		push	bx
 		push	cx
 		mov	cl,4
@@ -296,42 +296,42 @@ create_bin:
 		mov	bp,di
 		cld
 
-@@next_2:
+.next_2:
 		lodsb
 
 		cmp	al,' '
-		je	@@next_2
+		je	.next_2
 
 		cmp	al,';'
-		je	@@next_2
+		je	.next_2
 
 		or	al,al
-		jnz	@@convert
+		jnz	.convert
 
-@@eol:
+.eol:
 		clc
 
-@@exit:
+.exit:
 		ret
 
-@@convert:
+.convert:
 		call	convert_number
-		jnc	@@next_4
+		jnc	.next_4
 
 		call	convert_string
-		jnc	@@next_4
+		jnc	.next_4
 
 		call	convert_command
-		jc	@@exit
+		jc	.exit
 
-@@next_4:
+.next_4:
 		lodsb
 		cmp	al,';'
-		je	@@next_2
+		je	.next_2
 		or	al,al
-		je	@@eol
+		je	.eol
 		cmp	al,' '
-		je	@@next_2
+		je	.next_2
 		stc
 		ret
 ;=============================================================================
@@ -339,26 +339,26 @@ create_bin:
 ;-----------------------------------------------------------------------------
 convert_string:
 		cmp	al,'"'
-		je	@@convert
+		je	.convert
 		cmp	al,"'"
-		jne	@@error_exit
+		jne	.error_exit
 
-@@convert:
+.convert:
 		mov	dl,al
 
-@@next:
+.next:
 		lodsb
 		or	al,al
-		jz	@@error_exit
+		jz	.error_exit
 		cmp	al,dl
-		je	@@exit
+		je	.exit
 		stosb
-		jmp	@@next
+		jmp	.next
 
-@@error_exit:
+.error_exit:
 		stc
 
-@@exit:
+.exit:
 		ret
 ;=============================================================================
 ; convert_number
@@ -367,54 +367,54 @@ convert_number:
 		mov	bx,si
 		mov	cx,di
 		dec	bx
-;		call	@@is_hex_number
+;		call	.is_hex_number
 call	ascii_to_bin
-		jc	@@error_exit
+		jc	.error_exit
 		xchg	ax,dx
 		lodsb
-;		call	@@is_hex_number
+;		call	.is_hex_number
 call	ascii_to_bin
-jc	@@error_exit
-;		jnc	@@add
+jc	.error_exit
+;		jnc	.add
 ;		xchg	ax,dx
-;		jmp	@@save
+;		jmp	.save
 
-@@add:
+.add:
 		shl	dx,1
 		shl	dx,1
 		shl	dx,1
 		shl	dx,1
 		add	ax,dx
 
-@@save:
+.save:
 		stosb
 		mov	al,[si]
 		cmp	al,' '
-		je	@@ok
+		je	.ok
 		cmp	al,';'
-		je	@@ok
+		je	.ok
 		cmp	al,0
-		jne	@@error_exit
+		jne	.error_exit
 
-@@ok:
+.ok:
 		clc
 		ret
 
-;@@is_hex_number:
+;.is_hex_number:
 ;		call	upcase
 ;		sub	al,'0'
-;		jb	@@error_exit
+;		jb	.error_exit
 ;		cmp	al,9
-;		jbe	@@ok
+;		jbe	.ok
 ;		sub	al,'A'-'0'
-;		jb	@@error_exit
+;		jb	.error_exit
 ;		cmp	al,5
-;		ja	@@error_exit
+;		ja	.error_exit
 ;		add	al,10
 ;		clc
 ;		ret
 
-@@error_exit:
+.error_exit:
 		mov	si,bx
 		mov	di,cx
 		lodsb
@@ -427,14 +427,14 @@ convert_command:
 		dec	si
 		mov	bx,si
 
-@@next:
+.next:
 		lodsb
 		cmp	al,';'
-		je	@@eoa
+		je	.eoa
 		or	al,al
-		jne	@@next
+		jne	.next
 
-@@eoa:
+.eoa:
 		dec	si
 		push	word [si]
 		push	si

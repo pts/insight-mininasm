@@ -50,7 +50,7 @@ list_memory_blocks:
 		call	init_string_list
 
 		mov	ds,[first_mcb]
-@@next:
+.next:
 		mov	al,' '
 		mov	cx,40
 		mov	di,string
@@ -67,28 +67,28 @@ list_memory_blocks:
 		mov	bp,msg_noname	;Name: <noname>
 		mov	bx,cs		;Seg: our
 		cmp	word [1],0	;Free block?
-		je	@@set_type	;Yes
+		je	.set_type	;Yes
 
 		mov	si,msg_dos	;Type: dos
 		mov	bp,8		;Name: get name from MCB
 		mov	bx,ds		;Seg: MCB
 		cmp	word [1],8	;DOS code/data?
-		je	@@set_type	;Yes
+		je	.set_type	;Yes
 
 		mov	si,msg_prog	;Type: program
 		mov	ax,ds
 		inc	ax		;Seg of block
 		cmp	[1],ax		;Seg of owner
-		je	@@set_type	;It is really seg of PSP
+		je	.set_type	;It is really seg of PSP
 
 		mov	bx,[1]		;PSP seg of owner
 		mov	ds,bx
 		dec	bx		;Seg of owner's MCB
 		mov	si,msg_env	;Type: env. seg
 		cmp	[2ch],ax	;Env. segment?
-		je	@@set_type	;Yes
+		je	.set_type	;Yes
 		mov	si,msg_data	;Type: data segment
-@@set_type:
+.set_type:
 		push	cs
 		pop	ds
 		mov	di,string+24
@@ -120,26 +120,26 @@ list_memory_blocks:
 		pop	ds
 
 		cmp	byte [0],'Z'	;Last block?
-		jne	@@m_block	;No
+		jne	.m_block	;No
 		cmp	byte [cs:umb_available],0
-		je	@@quit		;UMB not available, quit
+		je	.quit		;UMB not available, quit
 		mov	ax,ds
 		cmp	ax,0a000h	;Z-block in UMB?
-		jae	@@quit		;Yes, quit
-@@m_block:
+		jae	.quit		;Yes, quit
+.m_block:
 		mov	ax,ds
 		add	ax,[3]
 		inc	ax
 		mov	ds,ax
-		jmp	@@next		;Loop
-@@quit:
+		jmp	.next		;Loop
+.quit:
 		push	cs
 		pop	ds
 
 		mov	si,list_mem_blocks_dialog
 		call	init_dialog
 		call	exec_dialog
-		jz	@@exit
+		jz	.exit
 
 		push	ax
 
@@ -151,16 +151,16 @@ list_memory_blocks:
 
 		pop	bx
 		cmp	bx,1		;Dump
-		jne	@@go_to_code
+		jne	.go_to_code
 		mov	word [dump_offs],0
 		mov	[dump_seg],ax
-		jmp	@@exit
-@@go_to_code:
+		jmp	.exit
+.go_to_code:
 		call	push_unasm_pos
 		mov	[unasm_seg],ax
 		mov	word [cur_ip],0
 		mov	word [cur_line],0
-@@exit:
+.exit:
 		call	draw_screen
 		call	popr
 		ret

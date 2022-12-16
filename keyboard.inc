@@ -47,7 +47,7 @@
 ;
 key_loop:
 
-@@loop:
+.loop:
 		push	ax
 		push	bx
 		push	si
@@ -55,27 +55,27 @@ key_loop:
 		call	flush_key
 		call	read_key
 		xchg	ax,bx
-@@next:
+.next:
 		lodsw
 		or	ax,ax			;End of table?
-		jz	@@not_found		;Yes
+		jz	.not_found		;Yes
 		cmp	ax,bx
-		je	@@found
+		je	.found
 		lodsw
-		jmp	@@next
+		jmp	.next
 
-@@found:
+.found:
 		lodsw
 		or	ax,ax			;Exit?
-		jz	@@quit			;Yes
+		jz	.quit			;Yes
 		mov	[key_loop_sub],ax
 		pop	si
 		pop	bx
 		pop	ax
 		call	word [key_loop_sub]	;Call procedure
-		jmp	@@loop
+		jmp	.loop
 
-@@not_found:
+.not_found:
 		mov	[cur_test_code],bx	;Key codes
 		lodsw
 		mov	[key_loop_sub],ax	;Procedure for any key
@@ -83,25 +83,25 @@ key_loop:
 		xchg	ax,bx
 		pop	si
 		pop	bx
-		jz	@@test_key		;Yes
+		jz	.test_key		;Yes
 		call	word [key_loop_sub]	;AX == codes on entry
-		jc	@@test_key
+		jc	.test_key
 		pop	ax
-		jmp	@@loop			;Next...
+		jmp	.loop			;Next...
 
-@@test_key:
+.test_key:
 		pop	ax
 		call	word [test_key]
-		jnc	@@quit_1
+		jnc	.quit_1
 		call	beep
-		jmp	@@loop
-@@quit:
+		jmp	.loop
+.quit:
 		mov	ax,bx			;Key codes
 		pop	si
 		pop	bx
 		inc	sp
 		inc	sp
-@@quit_1:
+.quit_1:
 		ret
 ;=============================================================================
 ; def_test_key
@@ -129,32 +129,32 @@ def_test_key:
 read_key:
 		push	bx
 		xor	bx,bx
-@@next:
+.next:
 		mov	ah,1
 		int	16h
-		jnz	@@get
+		jnz	.get
 		mov	ah,2
 		int	16h
 		test	al,8
-		jnz	@@alt
+		jnz	.alt
 		cmp	bl,2
-		je	@@ret
+		je	.ret
 		mov	bl,1
-		jmp	@@next
-@@ret:
+		jmp	.next
+.ret:
 		mov	ax,kbAltAlone
-		jmp	@@quit
-@@get:
+		jmp	.quit
+.get:
 		mov	ah,0
 		int	16h
-@@quit:
+.quit:
 		pop	bx
 		ret
-@@alt:
+.alt:
 		or	bx,bx
-		jz	@@next
+		jz	.next
 		mov	bl,2
-		jmp	@@next
+		jmp	.next
 ;=============================================================================
 ; in_key
 ;-----------------------------------------------------------------------------
@@ -185,14 +185,14 @@ in_key:
 ; Use:	---
 ;
 flush_key:
-@@next:
+.next:
 		mov	ah,1
 		int	16h
-		jz	@@quit
+		jz	.quit
 		mov	ah,0
 		int	16h
-		jmp	@@next
-@@quit:
+		jmp	.next
+.quit:
 		ret
 ;=============================================================================
 ; check_shift

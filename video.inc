@@ -73,15 +73,15 @@ xchg_planes:
 		mov	bx,0402h	;2nd plane (font)
 		call	set_regs
 		mov	bx,256		;Number of characters
-@@10:
+.10:
 		mov	cx,16		;Bytes per character
-@@20:
+.20:
 		call	xchg_esdi_dssi
 		cmpsb			;OPTIMIZE: instead of INC SI; INC DI
-		loop	@@20
+		loop	.20
 		add	si,16
 		dec	bx
-		jnz	@@10
+		jnz	.10
 
 		mov	di,old_screen
 		mov	bx,0100h
@@ -112,10 +112,10 @@ xchg_esdi_dssi:
 video_xchg:
 		mov	cx,SCR_COLS*SCR_ROWS
 		xor	si,si
-@@30:
+.30:
 		call	xchg_esdi_dssi
 		cmpsw			;OPTIMIZE: instead of
-		loop	@@30		;2*[INC SI; INC DI]
+		loop	.30		;2*[INC SI; INC DI]
 		ret
 ;=============================================================================
 ; set_regs
@@ -183,14 +183,14 @@ save_mode:
 ; Wait for vertical retrace
 ;-----------------------------------------------------------------------------
 		mov	dl,0dah
-@@90:
+.90:
 		in	al,dx
 		test	al,00001000b
-		jnz	@@90
-@@91:
+		jnz	.90
+.91:
 		in	al,dx
 		test	al,00001000b
-		jz	@@91
+		jz	.91
 ;-----------------------------------------------------------------------------
 ; SEQUENCER
 ;-----------------------------------------------------------------------------
@@ -211,7 +211,7 @@ save_mode:
 		mov	dl,0c0h
 		mov	cl,15h
 		mov	ah,00
-@@30:
+.30:
 		push	dx
 		mov	dl,0dah
 		in	al,dx		; clear flip/flop
@@ -224,7 +224,7 @@ save_mode:
 		in	al,dx
 		dec	dx
 		stosb
-		loop	@@30
+		loop	.30
 
 		mov	dl,0dah
 		in	al,dx		; clear flip/flop
@@ -246,7 +246,7 @@ save_mode:
 		mov	dl,0c7h
 		mov	cl,10h
 		mov	ah,00
-@@50:
+.50:
 		mov	al,ah
 		out	dx,al
 		call	dummy
@@ -263,7 +263,7 @@ save_mode:
 		dec	dx
 		dec	dx
 		inc	ah
-		loop	@@50
+		loop	.50
 ;-----------------------------------------------------------------------------
 ; FEATURE
 ;-----------------------------------------------------------------------------
@@ -301,7 +301,7 @@ dummy:
 save_vga_regs:
 		in	al,dx
 		stosb
-@@20:
+.20:
 		mov	al,ah
 		out	dx,al
 		call	dummy
@@ -310,7 +310,7 @@ save_vga_regs:
 		in	al,dx
 		dec	dx
 		stosb
-		loop	@@20
+		loop	.20
 		ret
 ;=============================================================================
 ; set_mode
@@ -330,14 +330,14 @@ set_mode:
 ; Wait for retrace
 ;-----------------------------------------------------------------------------
 		mov	dl,0dah
-@@90l:
+.90l:
 		in	al,dx
 		test	al,00001000b
-		jnz	@@90l
-@@91l:
+		jnz	.90l
+.91l:
 		in	al,dx
 		test	al,00001000b
-		jz	@@91l
+		jz	.91l
 ;-----------------------------------------------------------------------------
 		in	al,dx		;Clear flip/flop
 		call	dummy
@@ -378,7 +378,7 @@ set_mode:
 		xor	ax,ax
 		mov	cl,15h
 		mov	dl,0c0h
-@@40:
+.40:
 		mov	al,ah		;Attribute controller registers
 		out	dx,al		;Register number
 		call	dummy
@@ -386,7 +386,7 @@ set_mode:
 		lodsb
 		out	dx,al		;Register data
 		call	dummy
-		loop	@@40
+		loop	.40
 ;-----------------------------------------------------------------------------
 		xor	ax,ax
 		mov	dl,0cch
@@ -411,10 +411,10 @@ set_mode:
 		call	dummy
 		mov	cl,30h
 		inc	dx
-@@80:
+.80:
 		lodsb
 		out	dx,al		;DAC registers
-		loop	@@80		;RGB
+		loop	.80		;RGB
 ;-----------------------------------------------------------------------------
 ; FEATURE
 ;-----------------------------------------------------------------------------
@@ -465,13 +465,13 @@ set_mode:
 set_vga_regs:
 		lodsb
 		push	ax
-@@30:
+.30:
 		lodsb
 		xchg	al,ah
 		out	dx,ax
 		inc	ax
 		mov	ah,al
-		loop	@@30
+		loop	.30
 		pop	ax
 		out	dx,al
 		ret
@@ -482,12 +482,12 @@ set_vga_regs:
 ;
 save_screen:
 		cmp	byte [user_screen_mode],0
-		je	@@exit
+		je	.exit
 		mov	byte [user_screen_mode],0
 
 		call	pushr
 		cmp	byte [video_type],1	;1 == VGA
-		jne	@@not_vga
+		jne	.not_vga
 ;-----------------------------------------------------------------------------
 ; VGA
 ;-----------------------------------------------------------------------------
@@ -496,11 +496,11 @@ save_screen:
 		call	xchg_planes
 		mov	si,mode_80x25
 		call	set_mode
-		jmp	@@quit
+		jmp	.quit
 ;-----------------------------------------------------------------------------
 ; EGA and older
 ;-----------------------------------------------------------------------------
-@@not_vga:
+.not_vga:
 		call	get_cursor
 		mov	[old_cursor],dx
 		mov	[old_cur_shape],cx
@@ -509,12 +509,12 @@ save_screen:
 		and	al,7fh
 		mov	[old_mode_num],al
 		cmp	al,2
-		je	@@mode_ok
+		je	.mode_ok
 		cmp	al,3
-		je	@@mode_ok
+		je	.mode_ok
 		mov	ax,83h
 		int	10h
-@@mode_ok:
+.mode_ok:
 		mov	ds,[video_seg]
 		xor	si,si
 		mov	di,old_screen
@@ -530,9 +530,9 @@ save_screen:
 		sub	ax,CPU_HEIGHT+2
 		mov	[cs:dump_height],ax
 		mov	[cs:e_dump_height],ax
-@@quit:
+.quit:
 		call	popr
-@@exit:
+.exit:
 		ret
 ;=============================================================================
 ; restore_screen
@@ -543,18 +543,18 @@ restore_screen:
 		mov	byte [user_screen_mode],1
 		call	pushr
 		cmp	byte [video_type],1
-		jne	@@not_vga
+		jne	.not_vga
 ;-----------------------------------------------------------------------------
 ; VGA
 ;-----------------------------------------------------------------------------
 		call	xchg_planes
 		mov	si,old_video_regs
 		call	set_mode
-		jmp	@@quit
+		jmp	.quit
 ;-----------------------------------------------------------------------------
 ; EGA and older
 ;-----------------------------------------------------------------------------
-@@not_vga:
+.not_vga:
 		mov	es,[video_seg]
 		xor	di,di
 		mov	si,old_screen
@@ -564,12 +564,12 @@ restore_screen:
 		mov	ah,0
 		mov	al,[old_mode_num]
 		cmp	al,2
-		je	@@mode_ok
+		je	.mode_ok
 		cmp	al,3
-		je	@@mode_ok
+		je	.mode_ok
 		or	al,80h
 		int	10h
-@@mode_ok:
+.mode_ok:
 		mov	dx,[old_cursor]
 		call	gotoxy
 		mov	cx,[old_cur_shape]
@@ -577,7 +577,7 @@ restore_screen:
 		xor	ax,ax
 		mov	ds,ax
 		and	byte [487h],7fh
-@@quit:
+.quit:
 		call	popr
 		ret
 ;=============================================================================
@@ -585,7 +585,7 @@ restore_screen:
 ;-----------------------------------------------------------------------------
 save_font:
 		cmp	byte [video_type],1
-		jne	@@quit
+		jne	.quit
 		push	ds
 		push	es
 		mov	ax,1130h
@@ -606,7 +606,7 @@ save_font:
 	rep	movsw
 		pop	es
 		pop	ds
-@@quit:
+.quit:
 		ret
 ;
 ;-----------------------------------------------------------------------------
