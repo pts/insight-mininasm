@@ -76,7 +76,7 @@ show_help_page:
 		mov	bp,1
 		mov	dx,ds
 
-		jmps	decompr_start_n2b
+		jmp short decompr_start_n2b
 ;Decompressor start
 %include	 "n2b_d8e.inc"		;Slightly modified part of UPX
 ;Decompressor end

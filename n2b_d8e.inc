@@ -36,15 +36,6 @@
 ; bx = 0x800F
 ; bp = 1
 
-
-    %ifndef jmps
-    %define jmps    jmp short
-    %endif
-    %ifndef jmpn
-    %define jmpn    jmp near
-    %endif
-
-
 ;       __NRV2B16S__
 literal_n2b:
                 movsb
@@ -109,7 +100,7 @@ ds_ok_n2b:
                 movsb
                 xchg    ax, si
                 mov     ds, dx
-                jmps    decompr_start_n2b
+                jmp short decompr_start_n2b
 handle_underflow_n2b:
 ;%ifdef  __N2BX8602__
                 shl     ax, 1
@@ -127,7 +118,7 @@ handle_underflow_n2b:
 ;%endif; __NRV2BEX3__
                 add     ax, bx
                 add     ax, di
-                jmps    ds_ok_n2b
+                jmp short ds_ok_n2b
 getbit_cx_n2b:
                 add     bh, bh
                 jnz     gb2_n2b

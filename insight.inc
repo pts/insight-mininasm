@@ -40,7 +40,6 @@
 %define			CONFIG_BORLAND_MENU 1
 
 %define			WINDOW_BUF_SIZE	2800
-%define		jmps	jmp short
 %assign			STRING_BUF_SIZE	(WINDOW_BUF_SIZE - 256 * 3)
 
 USED_COLS		equ	80	;Number of columns used by debugger
