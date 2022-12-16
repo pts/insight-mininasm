@@ -71,10 +71,12 @@ https://github.com/pts/insight-mininasm/releases/download/orig/insight.com
 
 Source code and build scripts were extracted from the downloaded .zip
 files, and saved to https://github.com/pts/insight-mininasm/releases/download/orig/insight_1.24_src.zip
-, and also to this Git repository. 
+, and also to this Git repository.
 
 Step 2. Run all the build steps manually which produce input for NASM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The DOS tools mkhelp.com and uclpack.exe were run in DOSBox to generate data/page1.xlp and
+data/page2.xlp.
 
 Step 3. Change the source code so that it builds with NASM 0.98.39
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
