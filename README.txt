@@ -97,8 +97,8 @@ The original insight.com (Insight version 1.24, 32935 bytes) was added, to
 facilate comparisons in the future.
 
 The DOS makefile was replaced with Linux compilation shell script
-compile.sh. NASM optimization level was updated from `-O4' (buggy in NASM 0.98.39) to
-`-O9' (between to makefile and the shell script).
+compile.sh. NASM optimization level was updated from `-O4' (buggy in NASM
+0.98.39) to `-O9' (between to makefile and the shell script).
 
 Compilation with NASM 0.98.39 `-O9' (tried on Linux and also on DOS)
 produces insight.com identical to the release.
