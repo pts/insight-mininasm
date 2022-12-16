@@ -25,6 +25,10 @@ Relevant software:
 
   mininasm aims for compatibility with NASM 0.98.39 (released on 2005-01-20).
 
+  The mininasm executable programs that are able to compile the modified and
+  simplified Insight source code can be downloaded from
+  https://github.com/pts/mininasm/releases/tag/v6
+
 * Insight real-mode DOS 16-bit debugger, version 1.24, released on
   2009-01-11, written mostly in NASM, released under the GPL v2 license.
 
@@ -250,6 +254,9 @@ because mininasm supports `absolute' only with `$'. Actually, this was one
 of the few instances where esupport for a feature (`absolute $' this time)
 was added to mininasm during this effort (of porting Insight to mininasm).
 
-The remaining goal is to build the insight.com identical to the release.
+The source code of Insight modified as above compiles with mininasm.
+
+Compilation with mininasm (and comparison of the output with the original
+insight.com) was added to compile.sh.
 
 __END__
