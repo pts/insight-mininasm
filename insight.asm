@@ -5,6 +5,11 @@
 ;-----------------------------------------------------------------------------
 ; insight.asm
 ; Main module.
+
+%ifndef SCR_WIDTH
+%define SCR_WIDTH 80  ; Can be 80 or 90.
+%endif
+
 ;-----------------------------------------------------------------------------
 ; This program is free software; you can redistribute it and/or
 ; modify it under the terms of the GNU General Public License

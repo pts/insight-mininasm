@@ -118,6 +118,8 @@ https://github.com/pts/insight-mininasm/releases/tag/nasm-0.98.39 .
 Source files (and pregenerated source files) were moved from the data/
 directory to the main repository directory.
 
+The macro SCR_WIDTH was moved from the command line to insight.asm.
+
 Step 4. Change the source code so that it builds with mininasm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The goal is to build the insight.com identical to the release.
