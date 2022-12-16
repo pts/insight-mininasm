@@ -81,6 +81,9 @@ data/page2.xlp.
 The files unnecessary after the generation (e.g. mkhelp.com, uclpack.exe and
 their source code, data/page1.hlp and data/page2.hlp) were removed.
 
+Backslashes (`\') were replaced with slashes (`/') in the pathnames in
+actdata.inc, for Linux NASM compatibility.
+
 Step 3. Change the source code so that it builds with NASM 0.98.39
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The goal is to build the insight.com identical to the release.

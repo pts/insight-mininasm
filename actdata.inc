@@ -365,9 +365,9 @@ EDIT_PROCS_NUM	equ	(edit_procs_end - edit_procs) / 3
 
 ;=============================================================================
 help_page1:
-		incbin	"data\page1.xlp"	;Compressed help screen
+		incbin	"data/page1.xlp"	;Compressed help screen
 help_page2:
-		incbin	"data\page2.xlp"	;Compressed help screen
+		incbin	"data/page2.xlp"	;Compressed help screen
 
 ;=============================================================================
 ; 2007-02-06
