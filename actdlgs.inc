@@ -465,7 +465,7 @@ about_str_9	db	"Igor Merkulov, Dmitriy Dudkin, Igor Chorny", 0
 about_str_last:
 ;=============================================================================
 info_str_1	db	"Internal version number:    V06.S06", 0
-info_str_2	db	"Compilation date:        ", BUILD, 0
+info_str_2	db	"Compilation date:        ", "2009-01-11", 0
 info_str_3	db	"Chip & Dale,  Rescue Rangers", 0
 info_str_4	db	"Copyright (C) 1993, 96, 97", 0
 ;=============================================================================

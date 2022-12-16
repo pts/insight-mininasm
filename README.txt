@@ -167,6 +167,10 @@ Multi-line macro `reg_pos' was replaced half-manually (using a short, costom
 Perl script) with its expansions. That was needed because mininasm doesn't
 support multi-line macros.
 
+Single-line macros `BUILD' and `SERIAL_NUMBER' were manually replaced with
+their string literal expansions. That was needed because mininasm supports
+only integer-valued single-line macros.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__

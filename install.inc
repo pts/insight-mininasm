@@ -361,7 +361,7 @@ available_options db	"ERUH?",0
 
 options_bits	db	CMD_EGA, CMD_RESIDENT, CMD_UNLOAD, CMD_HELP, CMD_HELP
 
-copyright	db	SERIAL_NUMBER, ", real-mode debugger for MS/PC/FreeDOS. Build ", BUILD, ".", 13, 10
+copyright	db	"Insight 1.24", ", real-mode debugger for MS/PC/FreeDOS. Build ", "2009-01-11", ".", 13, 10
 		db	"Copyright (C) 1993, 96, 97, 2002, Victor Gamayunov, Sergey Pimenov", 13, 10
 		db	"Modifications by Oleg O. Chukaev, 2006 - 2009", 13, 10, 13, 10
 		db	"Insight comes with ABSOLUTELY NO WARRANTY. This is free software covered by", 13, 10

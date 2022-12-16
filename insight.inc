@@ -33,8 +33,8 @@
 
 
 ;=============================================================================
-%define			SERIAL_NUMBER	"Insight 1.24"
-%define			BUILD		"2009-01-11"
+;%define			SERIAL_NUMBER	"Insight 1.24"
+;%define			BUILD		"2009-01-11"
 
 ; Borland-style menu if defined, Norton-style otherwise.
 %define			CONFIG_BORLAND_MENU
