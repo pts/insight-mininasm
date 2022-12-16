@@ -471,8 +471,7 @@ RF_32		equ	(RF_OPERAND_32+RF_ADDRESS_32)
 ;=============================================================================
 ;******* unasm ********
 
-%define		CMD_X		CMD_POS+buffer
-%define		OPER_X		CMD_POS+8+buffer
+%assign		OPER_POS	CMD_POS+8
 %define		BUF_SIZE	80
 
 ;=============================================================================

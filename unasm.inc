@@ -51,7 +51,7 @@ unassemble:
 		mov	[cs:ignore_prefix],al
 get_next_cmd:
 		call	clear_buffer
-		mov	di,CMD_X
+		mov	di,CMD_POS+buffer
 		xor	ax,ax
 		mov	[cs:op_size_flag],al
 		mov	[cs:addr_size_flag],al
@@ -124,7 +124,7 @@ make_db_command:
 		call	clear_buffer
 		mov	dx,cdb
 		mov	word [cs:cur_param],0
-		mov	di,CMD_X
+		mov	di,CMD_POS+buffer
 		mov	si,[cs:unasm_cur_ip]
 		lodsb
 		jmp	get_code_name
@@ -151,8 +151,8 @@ prefix_now_used:
 		pop	di
 		pop	es
 		pop	ds
-		lea	ax,[di-(CMD_X-offset_0100h+100h)]
-;		lea	ax,[di-(CMD_X-OFFS100H+100h)]
+		lea	ax,[di-(CMD_POS+buffer-offset_0100h+100h)]
+;		lea	ax,[di-(CMD_POS+buffer-OFFS100H+100h)]
 		mov	[cmd_text_size],ax
 		pop	di
 		pop	dx
@@ -202,7 +202,7 @@ pref_ok:
 analyze_rep_prefix:
 		mov	bx,dx
 		call	fill_csbx
-		mov	di,OPER_X
+		mov	di,OPER_POS+buffer
 		mov	[cs:cur_rep],dx
 		jmp	get_next_byte
 
@@ -283,7 +283,7 @@ make_db:
 		pop	si
 		mov	si,[cs:unasm_cur_ip]
 		lodsb
-		mov	di,OPER_X
+		mov	di,OPER_POS+buffer
 		call	fill_byte_str
 		mov	word [cs:cur_param],0
 		ret
@@ -322,9 +322,9 @@ groups:
 ..@quit_00:
 		call	unasm_fill_str
 		pop	si
-		cmp	di,OPER_X
+		cmp	di,OPER_POS+buffer
 		ja	.exit
-		mov	di,OPER_X
+		mov	di,OPER_POS+buffer
 		ret
 .exit:
 		inc	di
@@ -1575,7 +1575,7 @@ fill_codes:
 		push	si
 		mov	si,[cs:unasm_cur_ip]
 .next_byte:
-		cmp	di,CMD_X-1
+		cmp	di,CMD_POS+buffer-1
 		jae	.trunc
 		lodsb
 		call	fill_byte_str

@@ -205,6 +205,10 @@ expansion locations:
 
 * The reason is the above restriction on `%define'.
 
+Similarly to `follow_stack', the `+buffer' part of the macro values of
+`CMD_X' and `OPER_X' was moved to the expansion locations, because of the
+above restriction on `%define'.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__
