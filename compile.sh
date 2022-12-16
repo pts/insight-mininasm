@@ -5,7 +5,12 @@
 #
 set -ex
 
-if type nasm-0.98.39 >/dev/null 2>&1; then
+if test -f nasm-0.98.39.li3; then
+  if ! test -x nasm-0.98.39.li3; then
+    chmod +x nasm-0.98.39.li3
+  fi
+  NASM=./nasm-0.98.39.li3
+elif type nasm-0.98.39 >/dev/null 2>&1; then
   NASM=nasm-0.98.39
 else
   NASM=nasm

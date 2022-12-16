@@ -96,6 +96,9 @@ compile.sh. NASM optimization level was updated from `-O4' (buggy in NASM 0.98.3
 Compilation with NASM 0.98.39 `-O9' (tried on Linux and also on DOS)
 produces insight.com identical to the release.
 
+Detection and use of local ./nasm-0.98.39.li3 executable program was added
+to compile.sh.
+
 Step 4. Change the source code so that it builds with mininasm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The goal is to build the insight.com identical to the release.
