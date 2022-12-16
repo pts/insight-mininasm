@@ -31,35 +31,6 @@
 ;=============================================================================
 
 
-%macro		save_act_regs		0
-		mov	[save_sp],sp
-%endmacro
-
-
-%macro		restore_act_regs	0
-		mov	ax,cs
-		mov	ds,ax
-		mov	es,ax
-		mov	ss,ax
-		mov	sp,[save_sp]
-%endmacro
-
-
-%macro		save_user_regs		0
-		cmp	byte [cs:system_cpu],3
-		jb	.skip_esp
-		db	66h
-.skip_esp:
-		mov	[cs:cpu_regs+REG_SP],sp
-		call	_save_user_regs
-%endmacro
-
-
-%macro		restore_user_regs	0
-		call	_restore_user_regs
-%endmacro
-
-
 ;=============================================================================
 ; _save_user_regs
 ;-----------------------------------------------------------------------------
@@ -239,8 +210,8 @@ single_step:
 		mov	al,[user_port_21]
 		or	al,3
 		out	21h,al
-		save_act_regs
-		restore_user_regs
+		mov	[save_sp],sp  ; save_act_regs
+		call	_restore_user_regs
 		or	word [cs:cpu_regs+REG_FL],100h
 		push	word [cs:cpu_regs+REG_FL]
 		push	word [cs:cpu_regs+REG_CS]
@@ -250,7 +221,13 @@ single_step:
 		pop	word [cs:cpu_regs+REG_IP]
 		pop	word [cs:cpu_regs+REG_CS]
 		pop	word [cs:cpu_regs+REG_FL]
-		save_user_regs
+		; Start of save_user_regs.
+		cmp	byte [cs:system_cpu],3
+		jb	.skip_esp
+		db	66h
+.skip_esp:	mov	[cs:cpu_regs+REG_SP],sp
+		call	_save_user_regs
+		; End of save_user_regs.
 		in	al,21h
 		and	al,~3
 		and	byte [user_port_21],3
@@ -335,8 +312,8 @@ proc_trace:
 		mov	al,[user_port_21]
 		and	al,11111110b
 		out	21h,al
-		save_act_regs
-		restore_user_regs
+		mov	[save_sp],sp  ; save_act_regs
+		call	_restore_user_regs
 		push	word [cs:cpu_regs+REG_FL]
 		push	word [cs:cpu_regs+REG_CS]
 		push	word [cs:cpu_regs+REG_IP]
@@ -346,7 +323,13 @@ proc_trace:
 		pop	word [cs:cpu_regs+REG_IP]
 		pop	word [cs:cpu_regs+REG_CS]
 		pop	word [cs:cpu_regs+REG_FL]
-		save_user_regs
+		; Start of save_user_regs.
+		cmp	byte [cs:system_cpu],3
+		jb	.skip_esp
+		db	66h
+.skip_esp:	mov	[cs:cpu_regs+REG_SP],sp
+		call	_save_user_regs
+		; End of save_user_regs.
 		mov	ax,[cpu_regs+REG_IP]
 		dec	ax
 		mov	[cpu_regs+REG_IP],ax
@@ -511,8 +494,8 @@ run_program:
 		mov	al,[user_port_21]
 		and	al,11111110b
 		out	21h,al
-		save_act_regs
-		restore_user_regs
+		mov	[save_sp],sp  ; save_act_regs
+		call	_restore_user_regs
 		push	word [cs:cpu_regs+REG_FL]
 		push	word [cs:cpu_regs+REG_CS]
 		push	word [cs:cpu_regs+REG_IP]
@@ -568,8 +551,8 @@ go_to_cursor:
 		mov	al,[user_port_21]
 		and	al,11111110b
 		out	21h,al
-		save_act_regs
-		restore_user_regs
+		mov	[save_sp],sp  ; save_act_regs
+		call	_restore_user_regs
 		push	word [cs:cpu_regs+REG_FL]
 		push	word [cs:cpu_regs+REG_CS]
 		push	word [cs:cpu_regs+REG_IP]
@@ -579,7 +562,13 @@ bp_entry:
 		pop	word [cs:cpu_regs+REG_IP]
 		pop	word [cs:cpu_regs+REG_CS]
 		pop	word [cs:cpu_regs+REG_FL]
-		save_user_regs
+		; Start of save_user_regs.
+		cmp	byte [cs:system_cpu],3
+		jb	.skip_esp
+		db	66h
+.skip_esp:	mov	[cs:cpu_regs+REG_SP],sp
+		call	_save_user_regs
+		; End of save_user_regs.
 ;		restore_act_regs
 		dec	word [cpu_regs+REG_IP]
 act_popup:
@@ -637,7 +626,13 @@ int_09_execute:
 		pop	word [cs:cpu_regs+REG_IP]
 		pop	word [cs:cpu_regs+REG_CS]
 		pop	word [cs:cpu_regs+REG_FL]
-		save_user_regs
+		; Start of save_user_regs.
+		cmp	byte [cs:system_cpu],3
+		jb	.skip_esp
+		db	66h
+.skip_esp:	mov	[cs:cpu_regs+REG_SP],sp
+		call	_save_user_regs
+		; End of save_user_regs.
 ;		restore_act_regs
 		jmp	act_popup
 ;=============================================================================

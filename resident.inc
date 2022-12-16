@@ -50,7 +50,7 @@ _resident:
 		mov	word [resident_status],DISABLED
 		mov	word [exit_status],DISABLED
 		mov	byte [swap_mode],1
-		save_act_regs
+		mov	[save_sp],sp  ; save_act_regs
 		sti
 		mov	dx,resident_msg
 		call	write_message

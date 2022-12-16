@@ -236,6 +236,12 @@ Operator `==' in `%if' expressions was replaced with `-':
 
 Default code when SCR_WIDTH has an unsupported value was removed.
 
+The multi-line macros `save_act_regs', `restore_act_regs', `save_user_regs'
+and `restore_user_regs' were manually replaced with their expansions. That
+was necessary because mininasm doesn't support multi-line macros. The
+actual manual replacement was quick and straightforward, because these were
+simple macros without arguments, and there were only a few expansions.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__
