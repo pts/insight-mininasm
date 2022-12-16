@@ -58,6 +58,20 @@ Relevant software:
 
 Step 1. Download the Insight release including the source code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These files were downloaded:
+
+* http://www.bttr-software.de/products/insight/insig124.zip
+* https://www.ibiblio.org/pub/micro/pc-stuff/freedos/files/repositories/latest/devel/insight.zip
+
+Downloaded files were saved to:
+https://github.com/pts/insight-mininasm/releases/tag/orig
+
+The target executable program insight.com (32935 bytes) was saved to:
+https://github.com/pts/insight-mininasm/releases/download/orig/insight.com
+
+Source code and build scripts were extracted from the downloaded .zip
+files, and saved to https://github.com/pts/insight-mininasm/releases/download/orig/insight_1.24_src.zip
+, and also to this Git repository. 
 
 Step 2. Run all the build steps manually which produce input for NASM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
