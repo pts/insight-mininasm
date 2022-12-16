@@ -20,4 +20,9 @@ test -d bin || mkdir bin
 "$NASM" -t -O9 -w+orphan-labels -f bin -DSCR_WIDTH=80 -DCOL_SCH=data/colors_k.inc -o bin/insight.com insight.asm
 cmp orig/insight.com bin/insight.com
 
+if type kvikdos >/dev/null 2>&1 && test -f nasm98.exe; then
+  kvikdos nasm98.exe -t -O9 -w+orphan-labels -f bin -DSCR_WIDTH=80 -DCOL_SCH=data/colors_k.inc -o bin/insightd.com insight.asm
+  cmp orig/insight.com bin/insightd.com
+fi
+
 : "$0" OK.

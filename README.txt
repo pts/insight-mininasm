@@ -56,6 +56,13 @@ Relevant software:
   * The `appinfo' directory is only in the FreeDOS archive, because it's
     specific to FreeDOS.
 
+* kvikdos: a very fast headless DOS emulator for Linux (with KVM):
+  https://github.com/pts/kvikdos
+
+  kvikdos can optionally be used to run the DOS 8086 host version of NASM,
+  to double check that it generates the same output as the Linux host
+  version.
+
 Step 1. Download the Insight release including the source code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These files were downloaded:
@@ -98,6 +105,11 @@ produces insight.com identical to the release.
 
 Detection and use of local ./nasm-0.98.39.li3 executable program was added
 to compile.sh.
+
+Detection and use of kvikdos and local nasm98.exe executable program was
+added to compile.sh. This is for running the DOS 8086 host version of NASM
+in a DOS emulator, to double check that it generates the same output as the
+Linux host version.
 
 Step 4. Change the source code so that it builds with mininasm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
