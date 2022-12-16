@@ -394,17 +394,6 @@ YELLOW		equ	14
 WHITE		equ	15
 
 ;-----------------------------------------------------------------------------
-%macro		reg_pos	7
-		db	REG_X+%1
-		db	REG_Y+%2
-		dw	cpu_regs+REG_%3
-		db	%4
-		db	%5
-		db	%6
-		db	%7
-%endmacro
-;
-;-----------------------------------------------------------------------------
 CMD_HELP	equ	1b
 CMD_RESIDENT	equ	10b
 CMD_SKIP_MOD	equ	100b

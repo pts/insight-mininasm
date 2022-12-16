@@ -163,6 +163,10 @@ Source code of non-8086 code was changed:
   Most of the `db' values were instances of the 386 size prefix `db 0x66',
   and there was also the 586 `cpuid' instruction `db 0x0f, 0xa2'.
 
+Multi-line macro `reg_pos' was replaced half-manually (using a short, costom
+Perl script) with its expansions. That was needed because mininasm doesn't
+support multi-line macros.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__

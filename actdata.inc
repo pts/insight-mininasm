@@ -149,20 +149,132 @@ magic_code	db	'I'^45h, 'D'^45h, 'D'^45h, 'Q'^45h, 'D'^45h
 ; Reg's position (X/Y) --.--.  |    L    R   U    D
 ;                        |  |  |    |    |   |    |
 reg16_pos_table:;        V  V  V    V    V   V    V
-		reg_pos	 3, 0, AX, 13,   4, 12,   1	;FL, SI, IP, BX
-		reg_pos	 3, 1, BX,  7,   4, -1,   1	;CS, DI, AX, CX
-		reg_pos	 3, 2, CX,  7,   4, -1,   1	;DS, BP, BX, DX
-		reg_pos	 3, 3, DX,  7,   4, -1,   9	;ES, SP, CX, IP
-		reg_pos	12, 0, SI, -4,   4,  3,   1	;AX, CS, SP, DI
-		reg_pos	12, 1, DI, -4,   4, -1,   1	;BX, DS, SI, BP
-		reg_pos	12, 2, BP, -4,   4, -1,   1	;CX, ES, DI, SP
-		reg_pos	12, 3, SP, -4,   4, -1,   5	;DX, SS, BP, IP
-		reg_pos	21, 0, CS, -4,  -7,  5,   1	;SI, BX, FL, DS
-		reg_pos	21, 1, DS, -4,  -7, -1,   1	;DI, CX, CS, ES
-		reg_pos	21, 2, ES, -4,  -7, -1,   1	;BP, DX, DS, SS
-		reg_pos	21, 3, SS, -4,   1, -1,   2	;SP, IP, ES, FL
-		reg_pos	 3, 5, IP, -1,   1, -9, -12	;SS, FL, DX, AX
-		reg_pos	21, 5, FL, -1, -13, -2,  -5	;IP, AX, SS, CS
+		;reg_pos 3, 0, AX, 13,   4, 12,   1	;FL, SI, IP, BX
+		db	REG_X+3
+		db	REG_Y+0
+		dw	cpu_regs+REG_AX
+		db	13
+		db	4
+		db	12
+		db	1
+		;
+		;reg_pos 3, 1, BX,  7,   4, -1,   1	;CS, DI, AX, CX
+		db	REG_X+3
+		db	REG_Y+1
+		dw	cpu_regs+REG_BX
+		db	7
+		db	4
+		db	-1
+		db	1
+		;
+		;reg_pos 3, 2, CX,  7,   4, -1,   1	;DS, BP, BX, DX
+		db	REG_X+3
+		db	REG_Y+2
+		dw	cpu_regs+REG_CX
+		db	7
+		db	4
+		db	-1
+		db	1
+		;
+		;reg_pos 3, 3, DX,  7,   4, -1,   9	;ES, SP, CX, IP
+		db	REG_X+3
+		db	REG_Y+3
+		dw	cpu_regs+REG_DX
+		db	7
+		db	4
+		db	-1
+		db	9
+		;
+		;reg_pos	12, 0, SI, -4,   4,  3,   1	;AX, CS, SP, DI
+		db	REG_X+12
+		db	REG_Y+0
+		dw	cpu_regs+REG_SI
+		db	-4
+		db	4
+		db	3
+		db	1
+		;
+		;reg_pos	12, 1, DI, -4,   4, -1,   1	;BX, DS, SI, BP
+		db	REG_X+12
+		db	REG_Y+1
+		dw	cpu_regs+REG_DI
+		db	-4
+		db	4
+		db	-1
+		db	1
+		;
+		;reg_pos	12, 2, BP, -4,   4, -1,   1	;CX, ES, DI, SP
+		db	REG_X+12
+		db	REG_Y+2
+		dw	cpu_regs+REG_BP
+		db	-4
+		db	4
+		db	-1
+		db	1
+		;
+		;reg_pos	12, 3, SP, -4,   4, -1,   5	;DX, SS, BP, IP
+		db	REG_X+12
+		db	REG_Y+3
+		dw	cpu_regs+REG_SP
+		db	-4
+		db	4
+		db	-1
+		db	5
+		;
+		;reg_pos	21, 0, CS, -4,  -7,  5,   1	;SI, BX, FL, DS
+		db	REG_X+21
+		db	REG_Y+0
+		dw	cpu_regs+REG_CS
+		db	-4
+		db	-7
+		db	5
+		db	1
+		;
+		;reg_pos	21, 1, DS, -4,  -7, -1,   1	;DI, CX, CS, ES
+		db	REG_X+21
+		db	REG_Y+1
+		dw	cpu_regs+REG_DS
+		db	-4
+		db	-7
+		db	-1
+		db	1
+		;
+		;reg_pos	21, 2, ES, -4,  -7, -1,   1	;BP, DX, DS, SS
+		db	REG_X+21
+		db	REG_Y+2
+		dw	cpu_regs+REG_ES
+		db	-4
+		db	-7
+		db	-1
+		db	1
+		;
+		;reg_pos	21, 3, SS, -4,   1, -1,   2	;SP, IP, ES, FL
+		db	REG_X+21
+		db	REG_Y+3
+		dw	cpu_regs+REG_SS
+		db	-4
+		db	1
+		db	-1
+		db	2
+		;
+		;reg_pos 3, 5, IP, -1,   1, -9, -12	;SS, FL, DX, AX
+		db	REG_X+3
+		db	REG_Y+5
+		dw	cpu_regs+REG_IP
+		db	-1
+		db	1
+		db	-9
+		db	-12
+		;
+		;reg_pos	21, 5, FL, -1, -13, -2,  -5	;IP, AX, SS, CS
+		db	REG_X+21
+		db	REG_Y+5
+		dw	cpu_regs+REG_FL
+		db	-1
+		db	-13
+		db	-2
+		db	-5
+		;
 
 ;-----------------------------------------------------------------------------
 ;eaxh eaxl ebxh ebxl ecxh ecxl edxh edxl esih esil edih edil
@@ -170,30 +282,222 @@ reg16_pos_table:;        V  V  V    V    V   V    V
 ;ebph ebpl esph espl ecs eds ees ess efs egs eip efl
 ;  12   13   14   15  16  17  18  19  20  21  22  23
 reg32_pos_table:
-		reg_pos	 4, 0, AX+2,  23,   1, 14,   2	;EFL, EAXL, ESPH, EBXH
-		reg_pos	 9, 0,   AX,  -1,  15, 14,   2	;EAXH, ECS, ESPL, EBXL
-		reg_pos	 4, 1, BX+2,  14,   1, -2,   2	;ECS, EBXL, EAXH, ECXH
-		reg_pos	 9, 1,   BX,  -1,  14, -2,   2	;EBXH, EDS, EAXL, ECXL
-		reg_pos	 4, 2, CX+2,  13,   1, -2,   2	;EDS, ECXL, EBXH, EDXH
-		reg_pos	 9, 2,   CX,  -1,  13, -2,   2	;ECXH, EES, EBXL, EDXL
-		reg_pos	 4, 3, DX+2,  12,   1, -2,   2	;EES, EDXL, ECXH, ESIH
-		reg_pos	 9, 3,   DX,  -1,  12, -2,   2	;EDXH, ESS, ECXL, ESIL
-		reg_pos	 4, 4, SI+2,  11,   1, -2,   2	;ESS, ESIL, EDXH, EDIH
-		reg_pos	 9, 4,   SI,  -1,  11, -2,   2	;ESIH, EFS, EDXL, EDIL
-		reg_pos	 4, 5, DI+2,  10,   1, -2,   2	;EFS, EDIL, ESIH, EBPH
-		reg_pos	 9, 5,   DI,  -1,  10, -2,   2	;EDIH, EGS, ESIL, EBPL
-		reg_pos	 4, 7, BP+2,   9,   1, -2,   2	;EGS, EBPL, EDIH, ESPH
-		reg_pos	 9, 7,   BP,  -1,   9, -2,   2	;EBPH, EIP, EDIL, ESPL
-		reg_pos	 4, 8, SP+2,   8,   1, -2, -14	;EIP, ESPL, EBPH, EAXH
-		reg_pos	 9, 8,   SP,  -1,   8, -2, -14	;ESPH, EFL, EBPL, EAXL
-		reg_pos	21, 0,   CS, -15, -14,  7,   1	;EAXL, EBXH, EFL, EDS
-		reg_pos	21, 1,   DS, -14, -13, -1,   1	;EBXL, ECXH, ECS, EES
-		reg_pos	21, 2,   ES, -13, -12, -1,   1	;ECXL, EDXH, EDS, ESS
-		reg_pos	21, 3,   SS, -12, -11, -1,   1	;EDXL, ESIH, EES, EFS
-		reg_pos	21, 4,   FS, -11, -10, -1,   1	;ESIL, EDIH, ESS, EGS
-		reg_pos	21, 5,   GS, -10,  -9, -1,   1	;EDIL, EBPH, EFS, EIP
-		reg_pos	21, 7,   IP,  -9,  -8, -1,   1	;EBPL, ESPH, EGS, EFL
-		reg_pos	21, 8,   FL,  -8, -23, -1,  -7	;ESPL, EAXH, EIP, ECS
+		;reg_pos 4, 0, AX+2,  23,   1, 14,   2	;EFL, EAXL, ESPH, EBXH
+		db	REG_X+4
+		db	REG_Y+0
+		dw	cpu_regs+REG_AX+2
+		db	23
+		db	1
+		db	14
+		db	2
+		;
+		;reg_pos 9, 0,   AX,  -1,  15, 14,   2	;EAXH, ECS, ESPL, EBXL
+		db	REG_X+9
+		db	REG_Y+0
+		dw	cpu_regs+REG_AX
+		db	-1
+		db	15
+		db	14
+		db	2
+		;
+		;reg_pos 4, 1, BX+2,  14,   1, -2,   2	;ECS, EBXL, EAXH, ECXH
+		db	REG_X+4
+		db	REG_Y+1
+		dw	cpu_regs+REG_BX+2
+		db	14
+		db	1
+		db	-2
+		db	2
+		;
+		;reg_pos 9, 1,   BX,  -1,  14, -2,   2	;EBXH, EDS, EAXL, ECXL
+		db	REG_X+9
+		db	REG_Y+1
+		dw	cpu_regs+REG_BX
+		db	-1
+		db	14
+		db	-2
+		db	2
+		;
+		;reg_pos 4, 2, CX+2,  13,   1, -2,   2	;EDS, ECXL, EBXH, EDXH
+		db	REG_X+4
+		db	REG_Y+2
+		dw	cpu_regs+REG_CX+2
+		db	13
+		db	1
+		db	-2
+		db	2
+		;
+		;reg_pos 9, 2,   CX,  -1,  13, -2,   2	;ECXH, EES, EBXL, EDXL
+		db	REG_X+9
+		db	REG_Y+2
+		dw	cpu_regs+REG_CX
+		db	-1
+		db	13
+		db	-2
+		db	2
+		;
+		;reg_pos 4, 3, DX+2,  12,   1, -2,   2	;EES, EDXL, ECXH, ESIH
+		db	REG_X+4
+		db	REG_Y+3
+		dw	cpu_regs+REG_DX+2
+		db	12
+		db	1
+		db	-2
+		db	2
+		;
+		;reg_pos 9, 3,   DX,  -1,  12, -2,   2	;EDXH, ESS, ECXL, ESIL
+		db	REG_X+9
+		db	REG_Y+3
+		dw	cpu_regs+REG_DX
+		db	-1
+		db	12
+		db	-2
+		db	2
+		;
+		;reg_pos 4, 4, SI+2,  11,   1, -2,   2	;ESS, ESIL, EDXH, EDIH
+		db	REG_X+4
+		db	REG_Y+4
+		dw	cpu_regs+REG_SI+2
+		db	11
+		db	1
+		db	-2
+		db	2
+		;
+		;reg_pos 9, 4,   SI,  -1,  11, -2,   2	;ESIH, EFS, EDXL, EDIL
+		db	REG_X+9
+		db	REG_Y+4
+		dw	cpu_regs+REG_SI
+		db	-1
+		db	11
+		db	-2
+		db	2
+		;
+		;reg_pos 4, 5, DI+2,  10,   1, -2,   2	;EFS, EDIL, ESIH, EBPH
+		db	REG_X+4
+		db	REG_Y+5
+		dw	cpu_regs+REG_DI+2
+		db	10
+		db	1
+		db	-2
+		db	2
+		;
+		;reg_pos 9, 5,   DI,  -1,  10, -2,   2	;EDIH, EGS, ESIL, EBPL
+		db	REG_X+9
+		db	REG_Y+5
+		dw	cpu_regs+REG_DI
+		db	-1
+		db	10
+		db	-2
+		db	2
+		;
+		;reg_pos 4, 7, BP+2,   9,   1, -2,   2	;EGS, EBPL, EDIH, ESPH
+		db	REG_X+4
+		db	REG_Y+7
+		dw	cpu_regs+REG_BP+2
+		db	9
+		db	1
+		db	-2
+		db	2
+		;
+		;reg_pos 9, 7,   BP,  -1,   9, -2,   2	;EBPH, EIP, EDIL, ESPL
+		db	REG_X+9
+		db	REG_Y+7
+		dw	cpu_regs+REG_BP
+		db	-1
+		db	9
+		db	-2
+		db	2
+		;
+		;reg_pos 4, 8, SP+2,   8,   1, -2, -14	;EIP, ESPL, EBPH, EAXH
+		db	REG_X+4
+		db	REG_Y+8
+		dw	cpu_regs+REG_SP+2
+		db	8
+		db	1
+		db	-2
+		db	-14
+		;
+		;reg_pos 9, 8,   SP,  -1,   8, -2, -14	;ESPH, EFL, EBPL, EAXL
+		db	REG_X+9
+		db	REG_Y+8
+		dw	cpu_regs+REG_SP
+		db	-1
+		db	8
+		db	-2
+		db	-14
+		;
+		;reg_pos	21, 0,   CS, -15, -14,  7,   1	;EAXL, EBXH, EFL, EDS
+		db	REG_X+21
+		db	REG_Y+0
+		dw	cpu_regs+REG_CS
+		db	-15
+		db	-14
+		db	7
+		db	1
+		;
+		;reg_pos	21, 1,   DS, -14, -13, -1,   1	;EBXL, ECXH, ECS, EES
+		db	REG_X+21
+		db	REG_Y+1
+		dw	cpu_regs+REG_DS
+		db	-14
+		db	-13
+		db	-1
+		db	1
+		;
+		;reg_pos	21, 2,   ES, -13, -12, -1,   1	;ECXL, EDXH, EDS, ESS
+		db	REG_X+21
+		db	REG_Y+2
+		dw	cpu_regs+REG_ES
+		db	-13
+		db	-12
+		db	-1
+		db	1
+		;
+		;reg_pos	21, 3,   SS, -12, -11, -1,   1	;EDXL, ESIH, EES, EFS
+		db	REG_X+21
+		db	REG_Y+3
+		dw	cpu_regs+REG_SS
+		db	-12
+		db	-11
+		db	-1
+		db	1
+		;
+		;reg_pos	21, 4,   FS, -11, -10, -1,   1	;ESIL, EDIH, ESS, EGS
+		db	REG_X+21
+		db	REG_Y+4
+		dw	cpu_regs+REG_FS
+		db	-11
+		db	-10
+		db	-1
+		db	1
+		;
+		;reg_pos	21, 5,   GS, -10,  -9, -1,   1	;EDIL, EBPH, EFS, EIP
+		db	REG_X+21
+		db	REG_Y+5
+		dw	cpu_regs+REG_GS
+		db	-10
+		db	-9
+		db	-1
+		db	1
+		;
+		;reg_pos	21, 7,   IP,  -9,  -8, -1,   1	;EBPL, ESPH, EGS, EFL
+		db	REG_X+21
+		db	REG_Y+7
+		dw	cpu_regs+REG_IP
+		db	-9
+		db	-8
+		db	-1
+		db	1
+		;
+		;reg_pos	21, 8,   FL,  -8, -23, -1,  -7	;ESPL, EAXH, EIP, ECS
+		db	REG_X+21
+		db	REG_Y+8
+		dw	cpu_regs+REG_FL
+		db	-8
+		db	-23
+		db	-1
+		db	-7
+		;
 ;=============================================================================
 ;			address/opcode/instruction/number/arrow/disabled
 cmd_normal	db	atNormAddr,	atNormOpcode,	atNormInstr
@@ -239,7 +543,7 @@ ms_reg_bits	equ	ms_invalid_param
 ms_param_type	equ	ms_invalid_param
 ms_rep_error	db	"Incorrect prefix use", 0
 
-main_title	db	" ", SERIAL_NUMBER, " ", 0
+main_title	db	" ", "Insight 1.24", " ", 0
 TITLE_LEN	equ	$-main_title
 
 resident_msg	db	"Debugger has been installed resident.", 13, 10
@@ -306,7 +610,7 @@ cpu_advanced_id	db	"086 ", 0
 
 reg_shift	db	11, 10, 9, 7, 6, 4, 2, 0	;!!!
 
-follow_stack_ptr dw	follow_stack	;!!!
+follow_stack_ptr dw	follow_stack_mmm	;!!!
 
 code_end	dw	program_end	;!!!
 
