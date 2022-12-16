@@ -171,6 +171,21 @@ Single-line macros `BUILD' and `SERIAL_NUMBER' were manually replaced with
 their string literal expansions. That was needed because mininasm supports
 only integer-valued single-line macros.
 
+Single-line macros in colors_k.inc were replaced with `equ' labels:
+
+* Example:
+
+    %define MAIN_BG BLACK ; Old, doesn't work in mininasm.
+    MAIN_BG equ BLACK     ; New, works in mininasm
+    %assign MAIN_BG BLACK ; This would also work in mininasm.
+
+* That was necessary, because in mininasm, the value of a single-line macro
+  defined with `%define' must be an integer literal (possibly prefixed with
+  unary operators). This restriction is there because single-line macro
+  facilities in mininasm are very limited, and they are implemented using
+  (multiple) labels, and this restriction is only sane way to prevent
+  deviation from NASM macro expansion semantics.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__
