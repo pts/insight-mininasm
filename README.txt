@@ -78,6 +78,9 @@ Step 2. Run all the build steps manually which produce input for NASM
 The DOS tools mkhelp.com and uclpack.exe were run in DOSBox to generate data/page1.xlp and
 data/page2.xlp.
 
+The files unnecessary after the generation (e.g. mkhelp.com, uclpack.exe and
+their source code, data/page1.hlp and data/page2.hlp) were removed.
+
 Step 3. Change the source code so that it builds with NASM 0.98.39
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The goal is to build the insight.com identical to the release.
