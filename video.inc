@@ -615,57 +615,7 @@ save_font:
 ;-----------------------------------------------------------------------------
 mode_80x25:
 
-%if SCR_WIDTH==80
-
-;Sequencer registers
-		db	0
-		db	000h, 003h, 000h, 002h
-;CRT controller registers
-		db	0
-		db	05fh, 04fh, 050h, 082h, 055h
-		db	081h, 0bfh, 01fh, 000h,	04fh
-		db	00dh, 00eh, 000h, 000h,	000h
-		db	000h, 09ch, 08eh, 08fh, 028h
-		db	01fh, 096h, 0b9h, 0a3h, 0ffh
-;Attribute controller registers
-		db	000h, 001h, 002h, 003h,	004h, 005h, 006h, 007h
-		db	008h, 009h, 00ah, 00bh, 00ch, 00dh, 00eh, 00fh
-		db	00ch, 000h, 00fh, 008h, 000h
-;Graphics controller registers
-		db	0
-		db	000h, 000h, 000h, 000h, 000h, 010h, 00eh, 000h, 0ffh
-;DAC registers
-		db	00h, 00h, 00h	;00
-		db	00h, 00h, 2ah	;01
-		db	00h, 2ah, 00h	;02
-		db	00h, 2ah, 2ah	;03
-		db	2ah, 00h, 00h	;04
-		db	2ah, 00h, 2ah	;05
-		db	2ah, 2ah, 00h	;14
-		db	2ah, 2ah, 2ah	;07
-
-		db	15h, 15h, 15h	;38
-		db	15h, 15h, 3fh	;39
-		db	15h, 3fh, 15h	;3A
-		db	15h, 3fh, 3fh	;3B
-		db	3fh, 15h, 15h	;3C
-		db	3fh, 15h, 3fh	;3D
-		db	3fh, 3fh, 15h	;3E
-		db	3fh, 3fh, 3fh	;3F
-;Feature
-		db	000h
-;Miscelianeous
-		db	067h
-;Pel mask
-		db	0ffh
-;BIOS variables
-word_0450h	dw	0		;Cursor position for 1st page
-word_044ah	dw	80		;Screen width in columns
-word_0485h	dw	16		;Lines per char
-byte_0484h	db	24		;Last line number
-byte_0449h	db	3		;Video mode
-
-%elif SCR_WIDTH==90
+%if SCR_WIDTH-80  ; 90.
 
 ;Sequencer registers
 		db	0
@@ -715,7 +665,7 @@ word_0485h	dw	16		;Lines per char
 byte_0484h	db	24		;Last line number
 byte_0449h	db	3		;Video mode
 
-%else
+%else  ; SCR_WIDTH==80.
 
 ;Sequencer registers
 		db	0

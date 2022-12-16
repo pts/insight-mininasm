@@ -213,6 +213,29 @@ The non-integer-valued single-line macros `jmpn' and `jmps' (convenience
 shorthand for `jmp short') were repleaced with their expansions, because of
 the above restrictions on `%define'.
 
+Operator `==' in `%if' expressions was replaced with `-':
+
+* Example original:
+
+    %if SCR_WIDTH==80
+      ...A
+    %else
+      ...B
+    %endif
+
+* Replacement:
+
+    %if SCR_WIDTH-80  ; True if not equals.
+      ...B
+    %else
+      ...A
+    %endif
+
+* That was necessary because mininasm doesn't support comparison or logical
+  operators in `%if' expressions.
+
+Default code when SCR_WIDTH has an unsupported value was removed.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__

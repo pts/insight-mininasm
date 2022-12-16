@@ -44,26 +44,19 @@
 
 USED_COLS		equ	80	;Number of columns used by debugger
 
-%if SCR_WIDTH==80
+%if SCR_WIDTH-90  ; 80.
 
 ; Settings for mode 80x25.
 SCR_COLS		equ	80	;Number of columns on the screen
 SCR_ROWS		equ	25	;Number of rows on the screen
 MAX_SCR_ROWS		equ	50	;Max. number of rows on the screen
 
-%elif SCR_WIDTH==90
+%else  ; SCR_WIDTH==90.
 
 ; Settings for mode 90x25.
 SCR_COLS		equ	90	;Number of columns on the screen
 SCR_ROWS		equ	25	;Number of rows on the screen
 MAX_SCR_ROWS		equ	30	;Max. number of rows on the screen
-
-%else
-
-; Settings for mode 80x25 (default).
-SCR_COLS		equ	80	;Number of columns on the screen
-SCR_ROWS		equ	25	;Number of rows on the screen
-MAX_SCR_ROWS		equ	50	;Max. number of rows on the screen
 
 %endif
 
