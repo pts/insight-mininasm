@@ -242,6 +242,9 @@ was necessary because mininasm doesn't support multi-line macros. The
 actual manual replacement was quick and straightforward, because these were
 simple macros without arguments, and there were only a few expansions.
 
+The unnecessary `section .text' directive, which is not supported by
+mininasm, was removed.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__
