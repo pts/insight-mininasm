@@ -189,6 +189,22 @@ Single-line macros in colors_k.inc were replaced with `equ' labels:
 The empty value of the single-line macro BORLAND_MENU was replaced with the
 value `1', because of the above restriction on `%define'.
 
+Moved the non-integer part of the single-line macro `follow_stack' to the
+expansion locations:
+
+* Original:
+
+    %define PaletteBuffer (window_buffer + STRING_BUF_SIZE)
+    %define follow_stack PaletteBuffer
+    cmp si, follow_stack  ; A few more like this in the source.
+
+* Replacement:
+
+    follow_stack_mmm equ window_buffer + STRING_BUF_SIZE
+    cmp si, follow_stack_mmm
+
+* The reason is the above restriction on `%define'.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__

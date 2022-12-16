@@ -364,7 +364,7 @@ follow:
 previous:
 		cld
 		mov	si,[follow_stack_ptr]
-		cmp	si,follow_stack		;??? offset
+		cmp	si,follow_stack_mmm		;??? offset
 		jae	beep_return
 		lodsw
 		mov	[cur_line],ax
@@ -431,7 +431,7 @@ _check_shared_area:
 		call	message_box
 
 .exit_2:
-		mov	word [follow_stack_ptr],follow_stack
+		mov	word [follow_stack_ptr],follow_stack_mmm
 
 .exit_1:
 		pop	si

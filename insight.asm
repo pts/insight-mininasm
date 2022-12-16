@@ -85,6 +85,7 @@ follow_stack_btm:
 shared_data_area:
 string_buffer:
 window_buffer:
+follow_stack_mmm equ window_buffer + STRING_BUF_SIZE
 
 %include	"cpu.inc"		;CPU detection code
 %include	"cmdline.inc"		;Command line parsing procedures
