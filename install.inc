@@ -203,16 +203,19 @@ init:
 		cmp	al,7fh
 		jne	.set_cpu_type
 
-	cpu	586
-		xor	eax,eax
-		cpuid
-		mov	[cpu_advanced_name+0],ebx
-		mov	[cpu_advanced_name+4],edx
-		mov	[cpu_advanced_name+8],ecx
-		xor	eax,eax
+		db 0x66  ; `cpu 386' emulation.
+		xor	ax,ax  ; xor eax,eax
+		db 0x0f, 0xa2  ; cpuid. `cpu 586' emulation.
+		db 0x66  ; `cpu 386' emulation.
+		mov	[cpu_advanced_name+0],bx  ; mov [cpu_advanced_name+0],ebx
+		db 0x66  ; `cpu 386' emulation.
+		mov	[cpu_advanced_name+4],dx  ; mov [cpu_advanced_name+4],ebx
+		db 0x66  ; `cpu 386' emulation.
+		mov	[cpu_advanced_name+8],cx  ; mov [cpu_advanced_name+8],ebx
+		db 0x66  ; `cpu 386' emulation.
+		xor	ax,ax  ; xor eax,eax
 		inc	ax
-		cpuid
-	cpu	8086
+		db 0x0f, 0xa2  ; cpuid. `cpu 586' emulation.
 
 		and	ah,0fh
 		cmp	ah,6			;ah == 0fh on Pentium-4

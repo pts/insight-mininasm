@@ -728,9 +728,8 @@ get_ref_addresses:
 		jmp	.1
 
 .2:
-	cpu	386
-		cmp	dword [cpu_regs+REG_CX],1
-	cpu	8086
+		db 0x66  ; `cpu 386' emulation.
+		cmp	word [cpu_regs+REG_CX],1  ; cmp dword [cpu_regs+REG_CX],1
 .1:
 		je	.return
 		jmp	.check_flag
@@ -744,9 +743,8 @@ get_ref_addresses:
 		jmp	.3
 
 .4:
-	cpu	386
-		cmp	dword [cpu_regs+REG_CX],0
-	cpu	8086
+		db 0x66  ; `cpu 386' emulation.
+		cmp	word [cpu_regs+REG_CX],0  ; cmp dword [cpu_regs+REG_CX],0
 .3:
 		je	.set_result
 		ret

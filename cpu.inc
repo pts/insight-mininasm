@@ -40,7 +40,6 @@
 ; Use:	---
 ;
 get_cpu_type:
-	cpu	486
 		pushf
 		push	bx
 		push	cx
@@ -81,30 +80,53 @@ get_cpu_type:
 .cpu2:
 		mov	bx,sp
 		and	sp,~3
-		pushfd
-		pop	eax
-		mov	ecx,eax
-		xor	eax,40000h
-		push	eax
-		popfd
-		pushfd
-		pop	eax
+		; Start of `cpu 486' emulation.
+		db 0x66
+		pushf                   ; 669C              pushfd
+		db 0x66
+		pop	ax              ; 6658              pop eax
+		db 0x66
+		mov	cx,ax           ; 6689C1            mov ecx,eax
+		db 0x66, 0x35
+		dd 40000h               ; 663500000400      xor eax,0x40000
+		db 0x66
+		push	ax              ; 6650              push eax
+		db 0x66
+		popf                    ; 669D              popfd
+		db 0x66
+		pushf                   ; 669C              pushfd
+		db 0x66
+		pop	ax              ; 6658              pop eax
 		mov	sp,bx
-		xor	eax,ecx
+		db 0x66
+		xor	ax,cx           ; 6631C8            xor eax,ecx
 		mov	al,3
 		jz	.quit
-		mov	ebx,200000h
-		mov	eax,ecx
-		xor	eax,ebx
-		push	eax
-		popfd
-		pushfd
-		pop	eax
-		push	ecx
-		popfd
-		and	eax,ebx
-		and	ecx,ebx
-		cmp	eax,ecx
+		db 0x66, 0xbb
+		dd 200000h              ; 66BB00002000      mov ebx,0x200000
+		db 0x66
+		mov	ax,cx           ; 6689C8            mov eax,ecx
+		db 0x66
+		xor	ax,bx           ; 6631D8            xor eax,ebx
+		db 0x66
+		push	ax              ; 6650              push eax
+		db 0x66
+		popf                    ; 669D              popfd
+		db 0x66
+		pushf                   ; 669C              pushfd
+		db 0x66
+		pop	ax              ; 6658              pop eax
+		db 0x66
+		push	cx              ; 6651              push ecx
+		db 0x66
+		popf                    ; 669D              popfd
+		db 0x66
+		and	ax,bx           ; 6621D8            and eax,ebx
+		db 0x66
+		and	cx,bx           ; 6621D9            and ecx,ebx
+		db 0x66
+		cmp	ax,cx           ; 6639C8            cmp eax,ecx
+		; End of `cpu 486' emulation.
 		mov	al,4
 		jz	.quit
 		mov	al,7fh
@@ -114,7 +136,6 @@ get_cpu_type:
 		pop	bx
 		popf
 		ret
-	cpu	8086
 ;=============================================================================
 ; E0F
 ;=============================================================================

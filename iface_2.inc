@@ -317,10 +317,10 @@ update_registers:
 		jne	.fill
 		call	align_reg
 		push	ax
-cpu	386
-		mov	eax,[di]
-		cmp	[di+save_cpu_regs-cpu_regs],eax
-cpu	8086
+		db 0x66  ; `cpu 386' emulation.
+		mov	ax,[di]  ; mov eax,[di]
+		db 0x66  ; `cpu 386' emulation.
+		cmp	[di+save_cpu_regs-cpu_regs],ax  ; cmp [di+save_cpu_regs-cpu_regs],eax
 		pop	ax
 		je	.fill
 		mov	bh,atRegNewValue
@@ -1139,9 +1139,8 @@ edit_registers:
 		cmp	di,cpu_regs+REG_CS
 		jae	.inc_16
 		call	align_reg
-cpu	386
-		inc	dword [di]
-cpu	8086
+		db 0x66  ; `cpu 386' emulation.
+		inc	word [di]  ; inc dword [di]
 		jmp	.update
 ; Ctrl+D
 .dec_reg:
@@ -1155,9 +1154,8 @@ cpu	8086
 		cmp	di,cpu_regs+REG_CS
 		jae	.dec_16
 		call	align_reg
-cpu	386
-		dec	dword [di]
-cpu	8086
+		db 0x66  ; `cpu 386' emulation.
+		dec	word [di]  ; dec dword [di]
 		jmp	.update
 ; Ctrl+Z
 .zero_reg:

@@ -133,6 +133,36 @@ doesn't support. A small Perl scipt was used to automate this:
 
   $ perl -pi -e 's/[@][@]/[.]/g' *.asm *.inc
 
+Source code of non-8086 code was changed:
+
+* Very little part of Insight optionally takes advantage of CPU features 386
+  and 586 (Pentium) processors, and it has corresponding blocks of assembly
+  code under `cpu 386' and `cpu 586', something like this:
+
+    cpu 386
+    pushfd  ; db 0x66, 0x99
+    pop eax  ; db 0x66, 0x58
+    mov ecx, eax  ; db 0x66, 0x98, 0xc1
+    cpu 8086
+
+  Please note that Insight doesn't switch to 32-bit protected mode (`bits
+  32'), so the `db 0x66' prefix is still used with these instructions.
+
+  The example above was replaced with:
+
+    db 0x66
+    pushf  ; db 0x99
+    db 0x66
+    pop ax  ; 0x58
+    db 0x66
+    mov cx, ax  ; db 0x98, 0xc1
+
+  All these instances were replaced manually, looking at the output of
+  `ndisasm -b 16' for the actual `db' values.
+
+  Most of the `db' values were instances of the 386 size prefix `db 0x66',
+  and there was also the 586 `cpuid' instruction `db 0x0f, 0xa2'.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__

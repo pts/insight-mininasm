@@ -100,10 +100,10 @@ prefix_07:
 
 		cmp	byte [system_cpu],3
 		jb	.skip
-	cpu	386
-		mov	[cpu_regs+REG_GS],gs
-		mov	[cpu_regs+REG_FS],fs
-	cpu	8086
+		db 0x8c, 0x2e  ; `cpu 386' emulation.
+		dw cpu_regs+REG_GS  ; mov [cpu_regs+REG_GS],gs
+		db 0x8c, 0x26  ; `cpu 386' emulation.
+		dw cpu_regs+REG_FS  ; mov [cpu_regs+REG_GS],fs
 .skip:
 		mov	[cpu_regs+REG_ES],es
 		mov	[cpu_regs+REG_SS],ss
@@ -169,10 +169,10 @@ prefix_15:
 		mov	bp,[cpu_regs+REG_BP]
 		cmp	byte [system_cpu],3
 		jb	.skip
-	cpu	386
-		mov	gs,[cpu_regs+REG_GS]
-		mov	fs,[cpu_regs+REG_FS]
-	cpu	8086
+		db 0x8e, 0x2e  ; `cpu 386' emulation.
+		dw cpu_regs+REG_GS  ; mov gs,[cpu_regs+REG_GS]
+		db 0x8e, 0x26  ; `cpu 386' emulation.
+		dw cpu_regs+REG_FS  ; mov fs,[cpu_regs+REG_FS]
 .skip:
 		mov	es,[cpu_regs+REG_ES]
 		mov	ss,[cpu_regs+REG_SS]
