@@ -1,10 +1,14 @@
 compiling the Insight real-mode DOS 16-bit debugger with mininasm
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This project is a case study of making the NASM source code of the Insight
+This project is a case study of porting NASM assembly source code to
+mininasm, more specifically making the NASM source code of the Insight
 debugger compilable with mininasm (and also remaining compilable with NASM),
 with the goal of producing the same insight.com executable program with NASM
-and mininasm, both identical to the file distributed. This goal has been
-reached, and the commit history of this project shows the journey.
+and mininasm, both identical to the file officially released.
+
+This goal has been reached, the commit history of this project shows the
+journey, and the remaining of this README explains the steps needed and
+their reasons.
 
 Relevant software:
 
