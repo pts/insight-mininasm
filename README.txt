@@ -122,6 +122,9 @@ The macro SCR_WIDTH was moved from the command line to insight.asm.
 
 The macro COL_SCH was moved from the command line to insight.asm.
 
+The now unused source files data/colors_b.inc and data/colors_c.inc were
+removed.
+
 Step 4. Change the source code so that it builds with mininasm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The goal is to build the insight.com identical to the release.
