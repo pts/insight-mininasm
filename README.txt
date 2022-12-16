@@ -111,6 +111,10 @@ added to compile.sh. This is for running the DOS 8086 host version of NASM
 in a DOS emulator, to double check that it generates the same output as the
 Linux host version.
 
+NASM 0.98.39 executable programs for Linux i386 (also works on Linux amd64),
+Win32 (works on 32-bit and 64-bit Windows) and DOS 8086 were added to
+https://github.com/pts/insight-mininasm/releases/tag/nasm-0.98.39 .
+
 Step 4. Change the source code so that it builds with mininasm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The goal is to build the insight.com identical to the release.
