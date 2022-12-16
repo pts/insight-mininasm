@@ -245,6 +245,11 @@ simple macros without arguments, and there were only a few expansions.
 The unnecessary `section .text' directive, which is not supported by
 mininasm, was removed.
 
+The `absolute udata_start' directive, was replaced with `absolute $',
+because mininasm supports `absolute' only with `$'. Actually, this was one
+of the few instances where esupport for a feature (`absolute $' this time)
+was added to mininasm during this effort (of porting Insight to mininasm).
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__

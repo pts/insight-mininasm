@@ -97,7 +97,7 @@ SHARED_DATA_SIZE 	equ	$-shared_data_area
 ;=============================================================================
 udata_start:
 
-absolute	udata_start
+		absolute $
 
 		resb	WINDOW_BUF_SIZE - SHARED_DATA_SIZE
 code_mark_buff	resw	10 * 4
