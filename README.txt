@@ -186,6 +186,9 @@ Single-line macros in colors_k.inc were replaced with `equ' labels:
   (multiple) labels, and this restriction is only sane way to prevent
   deviation from NASM macro expansion semantics.
 
+The empty value of the single-line macro BORLAND_MENU was replaced with the
+value `1', because of the above restriction on `%define'.
+
 The remaining goal is to build the insight.com identical to the release.
 
 __END__

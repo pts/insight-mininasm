@@ -834,7 +834,7 @@ write_items:
 ;-----------------------------------------------------------------------------
 		push	ax
 		inc	si
-%ifdef	CONFIG_BORLAND_MENU
+%if	CONFIG_BORLAND_MENU
 		dec	di
 		dec	di
 		mov	ax,atMenuBorder*256+'Ã'

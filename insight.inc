@@ -37,7 +37,7 @@
 ;%define			BUILD		"2009-01-11"
 
 ; Borland-style menu if defined, Norton-style otherwise.
-%define			CONFIG_BORLAND_MENU
+%define			CONFIG_BORLAND_MENU 1
 
 %define			WINDOW_BUF_SIZE	2800
 %define			STRING_BUF_SIZE	(WINDOW_BUF_SIZE - 256 * 3)
