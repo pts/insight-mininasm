@@ -81,15 +81,20 @@ data/page2.xlp.
 The files unnecessary after the generation (e.g. mkhelp.com, uclpack.exe and
 their source code, data/page1.hlp and data/page2.hlp) were removed.
 
+Step 3. Change the source code so that it builds with NASM 0.98.39
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Backslashes (`\') were replaced with slashes (`/') in the pathnames in
 actdata.inc, for Linux NASM compatibility.
 
 The original insight.com (Insight version 1.24, 32935 bytes) was added, to
 facilate comparisons in the future.
 
-Step 3. Change the source code so that it builds with NASM 0.98.39
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The goal is to build the insight.com identical to the release.
+The DOS makefile was replaced with Linux compilation shell script
+compile.sh. NASM optimization level was updated from `-O4' (buggy in NASM 0.98.39) to
+`-O9' (between to makefile and the shell script).
+
+Compilation with NASM 0.98.39 `-O9' (tried on Linux and also on DOS)
+produces insight.com identical to the release.
 
 Step 4. Change the source code so that it builds with mininasm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
